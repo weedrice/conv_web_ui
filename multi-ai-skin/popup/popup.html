@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chat Skin Settings</title>
+  <link rel="stylesheet" href="popup.css">
+  <script src="../shared/builtin-characters.js"></script>
+</head>
+<body>
+  <div class="popup-container">
+
+    <!-- 헤더 -->
+    <header class="popup-header">
+      <div class="popup-header-left">
+        <span class="popup-logo">✨</span>
+        <h1 class="popup-title">AI Chat Skin</h1>
+      </div>
+      <label class="popup-toggle" id="toggle-enabled">
+        <input type="checkbox" id="enabled-checkbox" checked>
+        <span class="popup-toggle-slider"></span>
+      </label>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="popup-main" id="main-content">
+
+      <!-- 상대방 캐릭터 (Assistant) -->
+      <section class="popup-section">
+        <h2 class="popup-section-title">
+          <span class="popup-section-icon">🤖</span>
+          상대방 캐릭터 (Assistant)
+        </h2>
+        <div class="popup-char-grid" id="assistant-char-grid">
+          <!-- 캐릭터 카드들이 JS로 렌더링됨 -->
+        </div>
+      </section>
+
+      <!-- 나 (User) -->
+      <section class="popup-section">
+        <h2 class="popup-section-title">
+          <span class="popup-section-icon">🙋</span>
+          나 (User)
+        </h2>
+        <div class="popup-char-grid" id="user-char-grid">
+          <!-- 캐릭터 카드들이 JS로 렌더링됨 -->
+        </div>
+      </section>
+
+      <!-- 문단 분리 설정 -->
+      <section class="popup-section popup-section-compact">
+        <div class="popup-field popup-field-inline">
+          <label class="popup-label" for="split-max-chars">문단 분리 기준</label>
+          <div class="popup-input-group">
+            <input type="number" class="popup-input popup-input-small" id="split-max-chars" value="180" min="50" max="1000" step="10">
+            <span class="popup-input-suffix">chars</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 캐릭터 추가 모달 (인라인) -->
+    <div class="popup-modal" id="add-char-modal" style="display:none;">
+      <div class="popup-modal-content">
+        <h3 class="popup-modal-title">새 캐릭터 추가</h3>
+        <div class="popup-field">
+          <label class="popup-label" for="new-char-name">이름</label>
+          <input type="text" class="popup-input" id="new-char-name" placeholder="캐릭터 이름">
+        </div>
+        <div class="popup-field">
+          <label class="popup-label" for="new-char-color">테마 색상</label>
+          <div class="popup-color-field">
+            <input type="color" id="new-char-color" value="#888888" class="popup-color-input">
+            <span class="popup-color-label" id="new-char-color-label">#888888</span>
+          </div>
+        </div>
+        <div class="popup-field">
+          <label class="popup-label" for="new-char-image">이미지</label>
+          <input type="file" id="new-char-image" accept=".png,.jpg,.jpeg,.webp" class="popup-file-input" style="display:none;">
+          <button class="popup-btn popup-btn-file" id="new-char-image-btn">파일 선택</button>
+          <div class="popup-preview-container" id="new-char-preview" style="display:none;">
+            <img id="new-char-preview-img" class="popup-preview-img" alt="미리보기">
+          </div>
+        </div>
+        <div class="popup-modal-actions">
+          <button class="popup-btn popup-btn-cancel" id="cancel-add-char">취소</button>
+          <button class="popup-btn popup-btn-save" id="save-add-char">저장</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

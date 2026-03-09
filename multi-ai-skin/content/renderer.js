@@ -1,0 +1,441 @@
+/**
+ * renderer.js — 버블 렌더링 로직
+ * 
+ * 원본 메시지 요소를 숨기고, 캐릭터 기반 메신저 버블 UI를 삽입한다.
+ */
+(function () {
+  'use strict';
+
+  var ns = (window.AIChatSkin = window.AIChatSkin || {});
+  var BUILTIN_CHARACTERS = ns.BUILTIN_CHARACTERS || [];
+
+  /**
+   * 설정 불러오기 (캐시 포함)
+   */
+  var cachedSettings = null;
+  var cachedUserChars = null;
+
+  function loadSettings(callback) {
+    try {
+      chrome.storage.sync.get({
+        enabled: true,
+        assistantCharacterId: 'aemeath',
+        assistantDisplayName: '',
+        userCharacterId: 'rober_f',
+        userDisplayName: '',
+        splitMaxChars: 180
+      }, function (settings) {
+        cachedSettings = settings;
+        try {
+          chrome.storage.local.get({ userCharacters: [] }, function (data) {
+            cachedUserChars = data.userCharacters;
+            callback(settings, data.userCharacters);
+          });
+        } catch (e2) {
+          // Extension context invalidated — 캐시 사용
+          callback(settings, cachedUserChars || []);
+        }
+      });
+    } catch (e) {
+      // Extension context invalidated — 캐시된 설정 사용
+      if (cachedSettings) {
+        callback(cachedSettings, cachedUserChars || []);
+      }
+      // 캐시도 없으면 조용히 종료
+    }
+  }
+
+  /** Chrome UI 언어 (예: 'ko', 'en') */
+  function getUILanguage() {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.i18n && chrome.i18n.getUILanguage) {
+        return chrome.i18n.getUILanguage();
+      }
+    } catch (e) {}
+    return (navigator.language || navigator.userLanguage || 'en').split('-')[0];
+  }
+
+  /** 캐릭터 표시 이름 — UI 언어에 따라 nameKo / nameEn 반환 */
+  function getLocalizedName(charInfo) {
+    if (!charInfo) return '';
+    if (charInfo.nameKo != null && charInfo.nameEn != null) {
+      return getUILanguage().toLowerCase().indexOf('ko') === 0 ? charInfo.nameKo : charInfo.nameEn;
+    }
+    return charInfo.name || charInfo.nameEn || charInfo.nameKo || '';
+  }
+
+  function getCharacterInfo(charId, userChars, role) {
+    // 빌트인에서 찾기
+    for (var i = 0; i < BUILTIN_CHARACTERS.length; i++) {
+      if (BUILTIN_CHARACTERS[i].id === charId) {
+        return BUILTIN_CHARACTERS[i];
+      }
+    }
+    // 사용자 정의에서 찾기
+    if (userChars) {
+      for (var j = 0; j < userChars.length; j++) {
+        if (userChars[j].id === charId) {
+          return userChars[j];
+        }
+      }
+    }
+    // 기본값: 역할에 맞는 첫 번째 빌트인
+    role = role || 'assistant';
+    for (var k = 0; k < BUILTIN_CHARACTERS.length; k++) {
+      if (BUILTIN_CHARACTERS[k].role === role) {
+        return BUILTIN_CHARACTERS[k];
+      }
+    }
+    return BUILTIN_CHARACTERS[0];
+  }
+
+  /**
+   * 아바타 이미지 URL 반환
+   * avatarFile 있으면 단일 파일(예: .webp), 없으면 폴더 내 avatar.png 사용
+   */
+  function getAvatarSrc(charInfo) {
+    if (charInfo.avatarBase64) {
+      return charInfo.avatarBase64;
+    }
+    if (charInfo.avatarFile) {
+      return chrome.runtime.getURL('assets/characters/' + charInfo.avatarFile);
+    }
+    return chrome.runtime.getURL('assets/characters/' + charInfo.id + '/avatar.png');
+  }
+
+  /**
+   * 타이핑 인디케이터 버블 생성
+   */
+  function createTypingBubble(charInfo, displayName) {
+    var wrap = document.createElement('div');
+    wrap.className = 'skin-bubble-wrap skin-bubble-wrap-assistant';
+    wrap.setAttribute('data-skin-rendered', 'typing');
+
+    var avatar = document.createElement('img');
+    avatar.className = 'skin-avatar';
+    avatar.src = getAvatarSrc(charInfo);
+    avatar.alt = getLocalizedName(charInfo);
+
+    var contentCol = document.createElement('div');
+    contentCol.className = 'skin-content-col';
+
+    var nameEl = document.createElement('div');
+    nameEl.className = 'skin-char-name';
+    nameEl.textContent = displayName || getLocalizedName(charInfo);
+
+    var bubble = document.createElement('div');
+    bubble.className = 'skin-bubble skin-typing';
+    bubble.innerHTML = '<span>.</span><span>.</span><span>.</span>';
+
+    contentCol.appendChild(nameEl);
+    contentCol.appendChild(bubble);
+    wrap.appendChild(avatar);
+    wrap.appendChild(contentCol);
+
+    return wrap;
+  }
+
+  /**
+   * 어시스턴트 메시지 버블 생성 (문단 분리 적용)
+   */
+  function createAssistantBubbles(htmlContent, charInfo, displayName, maxChars) {
+    var chunks = ns.splitter.split(htmlContent, maxChars);
+    var fragment = document.createDocumentFragment();
+
+    for (var i = 0; i < chunks.length; i++) {
+      var wrap = document.createElement('div');
+      wrap.className = 'skin-bubble-wrap skin-bubble-wrap-assistant';
+      wrap.setAttribute('data-skin-rendered', 'complete');
+      wrap.style.animationDelay = (i * 120) + 'ms';
+      wrap.classList.add('skin-fade-in');
+
+      var avatar = document.createElement('img');
+      avatar.className = 'skin-avatar';
+      avatar.src = getAvatarSrc(charInfo);
+      avatar.alt = getLocalizedName(charInfo);
+
+      var contentCol = document.createElement('div');
+      contentCol.className = 'skin-content-col';
+
+      var nameEl = document.createElement('div');
+      nameEl.className = 'skin-char-name';
+      nameEl.textContent = displayName || getLocalizedName(charInfo);
+
+      var bubble = document.createElement('div');
+      bubble.className = 'skin-bubble';
+      bubble.innerHTML = chunks[i];
+      // 캐릭터 테마 색상으로 글로우 효과
+      bubble.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px ' + charInfo.color + '10';
+
+      contentCol.appendChild(nameEl);
+      contentCol.appendChild(bubble);
+      wrap.appendChild(avatar);
+      wrap.appendChild(contentCol);
+      fragment.appendChild(wrap);
+    }
+
+    return fragment;
+  }
+
+  /**
+   * 사용자 메시지 버블 생성
+   */
+  function createUserBubble(textContent, charInfo, displayName) {
+    var wrap = document.createElement('div');
+    wrap.className = 'skin-bubble-wrap skin-bubble-wrap-user';
+    wrap.setAttribute('data-skin-rendered', 'complete');
+
+    var avatar = document.createElement('img');
+    avatar.className = 'skin-avatar';
+    avatar.src = getAvatarSrc(charInfo);
+    avatar.alt = getLocalizedName(charInfo);
+
+    var contentCol = document.createElement('div');
+    contentCol.className = 'skin-content-col skin-content-col-user';
+
+    var nameEl = document.createElement('div');
+    nameEl.className = 'skin-char-name skin-char-name-user';
+    nameEl.textContent = displayName || getLocalizedName(charInfo);
+
+    var bubble = document.createElement('div');
+    bubble.className = 'skin-bubble skin-bubble-user';
+    bubble.textContent = textContent;
+
+    contentCol.appendChild(nameEl);
+    contentCol.appendChild(bubble);
+    wrap.appendChild(avatar);
+    wrap.appendChild(contentCol);
+
+    return wrap;
+  }
+
+  /**
+   * 메시지를 감싸는 래퍼(article/turn) 찾기
+   * 래퍼를 기준으로 버블을 삽입하여 일관된 너비 보장
+   */
+  function findInsertionTarget(msgEl, adapter) {
+    var wrapper = adapter.getMessageWrapper(msgEl);
+    return wrapper || msgEl;
+  }
+
+  /**
+   * 특정 메시지 요소에 연결된 기존 스킨 버블들 제거
+   */
+  function removeExistingSkinBubbles(msgEl) {
+    var skinId = msgEl.getAttribute('data-skin-id');
+    if (skinId) {
+      var existing = document.querySelectorAll('.skin-bubble-wrap[data-skin-source="' + skinId + '"]');
+      var container = existing.length > 0 ? existing[0].closest('.skin-bubble-container') : null;
+      if (container) container.remove();
+    }
+  }
+
+  /**
+   * 메시지 요소에 스킨 적용
+   * 
+   * @param {Element} msgEl - 원본 메시지 요소
+   * @param {Object} adapter - 플랫폼 어댑터
+   * @param {boolean} forceComplete - true이면 isStreaming 체크를 무시하고 완료 상태로 렌더링
+   */
+  function renderMessage(msgEl, adapter, forceComplete) {
+    // 이미 처리된 요소인지 확인
+    if (msgEl.getAttribute('data-skin-processed') === 'true') {
+      // forceComplete로 호출된 경우: 기존 타이핑 버블을 완료 상태로 교체
+      if (forceComplete) {
+        removeExistingSkinBubbles(msgEl);
+        msgEl.removeAttribute('data-skin-processed');
+        // 아래에서 다시 complete 렌더링됨
+      } else {
+        // 스트리밍 상태 변경 확인
+        var skinId = msgEl.getAttribute('data-skin-id');
+        if (skinId) {
+          var existingWraps = document.querySelectorAll('.skin-bubble-wrap[data-skin-source="' + skinId + '"]');
+          if (existingWraps.length > 0) {
+            var firstWrap = existingWraps[0];
+            var isTyping = firstWrap.getAttribute('data-skin-rendered') === 'typing';
+            var isStillStreaming = adapter.isStreaming(msgEl);
+
+            // 아직 스트리밍 중이면 유지
+            if (isStillStreaming && isTyping) return;
+
+            // 스트리밍이 끝났는데 타이핑 상태이면 다시 렌더링
+            if (!isStillStreaming && isTyping) {
+              removeExistingSkinBubbles(msgEl);
+              msgEl.removeAttribute('data-skin-processed');
+              // 아래에서 다시 렌더링됨
+            } else {
+              return; // 이미 완료
+            }
+          } else {
+            return;
+          }
+        } else {
+          return;
+        }
+      }
+    }
+
+    // ★ 핵심: 비동기 콜백 전에 즉시 'processing' 마크 → race condition 방지
+    // Observer와 polling이 동시에 호출해도 중복 실행되지 않음
+    var role = adapter.getRole(msgEl);
+    if (!role) return;
+
+    // forceComplete가 true면 isStreaming을 무시
+    var isStreaming = forceComplete ? false : adapter.isStreaming(msgEl);
+
+    // 스킨 ID 부여 (아직 없으면)
+    var skinId = msgEl.getAttribute('data-skin-id');
+    if (!skinId) {
+      skinId = 'skin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+      msgEl.setAttribute('data-skin-id', skinId);
+    }
+
+    // 즉시 processed 표시하여 다른 호출에서 중복 처리 방지
+    msgEl.setAttribute('data-skin-processed', 'true');
+
+    loadSettings(function (settings, userChars) {
+      if (!settings.enabled) {
+        // 비활성화 시 이미 설정한 마크 제거
+        msgEl.removeAttribute('data-skin-processed');
+        msgEl.removeAttribute('data-skin-id');
+        return;
+      }
+
+      // 비동기 콜백 실행 시점에 이미 다른 호출이 버블을 삽입했는지 재확인
+      var existingBubbleCount = document.querySelectorAll('.skin-bubble-wrap[data-skin-source="' + skinId + '"]').length;
+      if (existingBubbleCount > 0) {
+        // 이미 버블이 있음 — 중복 삽입 방지
+        return;
+      }
+
+      // 원본 메시지 요소만 숨기기 (액션 버튼은 유지)
+      msgEl.classList.add('skin-original-hidden');
+
+      // 래퍼 요소 결정 (삽입 위치 계산용)
+      var wrapper = adapter.getMessageWrapper ? adapter.getMessageWrapper(msgEl) : msgEl;
+
+      // 삽입 기준점: 래퍼 요소 바로 뒤
+      // ChatGPT: article 바로 뒤 (article과 같은 레벨)
+      // Claude: 턴 컨테이너 바로 뒤
+      var insertPoint = wrapper.nextSibling;
+      var insertParent = wrapper.parentNode;
+
+      if (role === 'assistant') {
+        var aCharInfo = getCharacterInfo(settings.assistantCharacterId, userChars, 'assistant');
+        var aDisplayName = getLocalizedName(aCharInfo);
+
+        if (isStreaming) {
+          var typingBubble = createTypingBubble(aCharInfo, aDisplayName);
+          typingBubble.setAttribute('data-skin-source', skinId);
+          var wrap = document.createElement('div');
+          wrap.className = 'skin-bubble-container';
+          wrap.appendChild(typingBubble);
+          insertParent.insertBefore(wrap, insertPoint);
+        } else {
+          var htmlContent = adapter.getInnerHTML(msgEl);
+          var bubbles = createAssistantBubbles(htmlContent, aCharInfo, aDisplayName, settings.splitMaxChars);
+          var bubbleChildren = Array.from(bubbles.children);
+          for (var bc = 0; bc < bubbleChildren.length; bc++) {
+            bubbleChildren[bc].setAttribute('data-skin-source', skinId);
+          }
+          var wrap = document.createElement('div');
+          wrap.className = 'skin-bubble-container';
+          for (var c = 0; c < bubbleChildren.length; c++) {
+            wrap.appendChild(bubbleChildren[c]);
+          }
+          insertParent.insertBefore(wrap, insertPoint);
+        }
+      } else if (role === 'user') {
+        var uCharInfo = getCharacterInfo(settings.userCharacterId, userChars, 'user');
+        var uDisplayName = getLocalizedName(uCharInfo);
+        var textContent = adapter.getTextContent(msgEl);
+        var userBubble = createUserBubble(textContent, uCharInfo, uDisplayName);
+        userBubble.setAttribute('data-skin-source', skinId);
+        var wrap = document.createElement('div');
+        wrap.className = 'skin-bubble-container';
+        wrap.appendChild(userBubble);
+        insertParent.insertBefore(wrap, insertPoint);
+      }
+    });
+  }
+
+  /**
+   * 탭 제목을 선택한 상대 캐릭터 이름으로 설정 (화면 내 대화 상대 이름 표시)
+   */
+  function updatePageTitle() {
+    loadSettings(function (settings, userChars) {
+      if (!settings.enabled) return;
+      var aCharInfo = getCharacterInfo(settings.assistantCharacterId, userChars, 'assistant');
+      var displayName = getLocalizedName(aCharInfo);
+      if (!displayName) return;
+      var siteName = window.location.hostname || '';
+      document.title = displayName + ' · ' + siteName;
+    });
+  }
+
+  /**
+   * 모든 메시지에 스킨 적용
+   */
+  function renderAll(adapter) {
+    loadSettings(function (settings, userChars) {
+      if (!settings.enabled) {
+        // 비활성화 시 모든 스킨 제거 및 원본 복원
+        restoreAll();
+        return;
+      }
+
+      updatePageTitle();
+      var messages = adapter.getMessages();
+      for (var i = 0; i < messages.length; i++) {
+        renderMessage(messages[i], adapter);
+      }
+    });
+  }
+
+  /**
+   * 모든 스킨 제거하고 원본 복원
+   */
+  function restoreAll() {
+    // 스킨 컨테이너(내부 버블 포함) 제거
+    var containers = document.querySelectorAll('.skin-bubble-container');
+    for (var i = 0; i < containers.length; i++) {
+      containers[i].remove();
+    }
+
+    // 숨겨진 원본 요소 복원 (래퍼 포함)
+    var hiddenEls = document.querySelectorAll('.skin-original-hidden');
+    for (var k = 0; k < hiddenEls.length; k++) {
+      hiddenEls[k].classList.remove('skin-original-hidden');
+    }
+
+    // data-skin-processed 속성 정리
+    var processed = document.querySelectorAll('[data-skin-processed="true"]');
+    for (var j = 0; j < processed.length; j++) {
+      processed[j].removeAttribute('data-skin-processed');
+      processed[j].removeAttribute('data-skin-id');
+    }
+  }
+
+  /**
+   * 모든 메시지를 다시 렌더링 (설정 변경 시)
+   */
+  function reRenderAll(adapter) {
+    restoreAll();
+    renderAll(adapter);
+  }
+
+  // 공개 API
+  ns.renderer = {
+    renderMessage: renderMessage,
+    renderAll: renderAll,
+    restoreAll: restoreAll,
+    reRenderAll: reRenderAll,
+    updatePageTitle: updatePageTitle,
+    loadSettings: loadSettings,
+    getCharacterInfo: getCharacterInfo,
+    getAvatarSrc: getAvatarSrc,
+    getLocalizedName: getLocalizedName,
+    BUILTIN_CHARACTERS: BUILTIN_CHARACTERS
+  };
+
+})();

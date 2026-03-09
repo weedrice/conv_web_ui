@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "AI Chat Skin",
+  "version": "1.0.0",
+  "description": "Transform AI chat interfaces into character-based messenger style",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://claude.ai/*",
+    "https://gemini.google.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://claude.ai/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": [
+        "shared/builtin-characters.js",
+        "content/splitter.js",
+        "content/platforms/chatgpt.js",
+        "content/platforms/claude.js",
+        "content/platforms/gemini.js",
+        "content/renderer.js",
+        "content/observer.js",
+        "content/index.js"
+      ],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/characters/aemeath.webp",
+      "48": "assets/characters/aemeath.webp",
+      "128": "assets/characters/aemeath.webp"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://claude.ai/*",
+        "https://gemini.google.com/*"
+      ]
+    }
+  ]
+}
