@@ -26,7 +26,12 @@
         "content/observer.js",
         "content/index.js"
       ],
-      "css": ["content.css"],
+      "css": [
+        "content/common.css",
+        "content/platforms/chatgpt.css",
+        "content/platforms/claude.css",
+        "content/platforms/gemini.css"
+      ],
       "run_at": "document_idle"
     }
   ],

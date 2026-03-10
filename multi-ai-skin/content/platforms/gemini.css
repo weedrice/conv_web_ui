@@ -1,0 +1,220 @@
+body:has(model-response),
+body:has(user-query) {
+  --skin-shell-bg: rgba(223, 228, 232, 1);
+  --skin-shell-bg-soft: rgba(223, 228, 232, 1);
+  --skin-shell-header-left: rgba(223, 228, 231, 1);
+  --skin-shell-header-right: rgba(184, 189, 192, 1);
+  --skin-shell-border: #b7bec6;
+  --skin-action-fg: #4e5966;
+  --skin-action-fg-hover: #1f2834;
+  --skin-action-bg-hover: rgba(255, 255, 255, 0.75);
+  --skin-sidebar-bg: rgba(63, 69, 77, 0.95);
+  --skin-sidebar-panel: rgba(154, 161, 168, 0.38);
+  --skin-sidebar-text: rgba(238, 242, 246, 0.95);
+  --skin-sidebar-text-muted: rgba(214, 220, 226, 0.74);
+  --skin-sidebar-border: rgba(255, 255, 255, 0.58);
+  --bard-color-sidenav-tile-background-aurora: rgba(154, 161, 168, 0.38) !important;
+  --bard-color-sidenav-tile-text-aurora: rgba(238, 242, 246, 0.95) !important;
+  --sidenav-button-default-text-color: rgba(238, 242, 246, 0.95) !important;
+  --sidenav-button-hover-background-color: rgba(255, 255, 255, 0.08) !important;
+  --sidenav-button-focus-background-color: rgba(255, 255, 255, 0.12) !important;
+  --sidenav-button-pressed-background-color: rgba(255, 255, 255, 0.16) !important;
+  --sidenav-button-selected-background-color: rgba(154, 161, 168, 0.52) !important;
+  --sidenav-button-selected-text-color: rgba(255, 255, 255, 1) !important;
+  --gem-sys-color--on-surface: rgba(46, 51, 54, 1) !important;
+  --gem-sys-color--on-surface-variant: rgba(95, 102, 110, 1) !important;
+  --gem-sys-color--on-surface-low: rgba(118, 124, 132, 1) !important;
+  --gem-sys-color--outline-variant: rgba(177, 183, 189, 1) !important;
+  background-color: var(--skin-shell-bg) !important;
+}
+
+body:has(model-response) main,
+body:has(model-response) .conversation-container,
+body:has(user-query) main,
+body:has(user-query) .conversation-container {
+  background: linear-gradient(180deg, var(--skin-shell-bg-soft) 0%, var(--skin-shell-bg) 100%) !important;
+}
+
+body:has(model-response) header,
+body:has(model-response) [role="banner"],
+body:has(user-query) header,
+body:has(user-query) [role="banner"] {
+  background: linear-gradient(
+    90deg,
+    var(--skin-shell-header-left) 0%,
+    var(--skin-shell-header-left) 20%,
+    var(--skin-shell-header-right) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 1) !important;
+  border-radius: 0 !important;
+}
+
+body:has(model-response) aside,
+body:has(user-query) aside,
+body:has(model-response) [class*="sidenav"],
+body:has(user-query) [class*="sidenav"] {
+  background: linear-gradient(180deg, rgba(55, 61, 68, 0.98) 0%, var(--skin-sidebar-bg) 100%) !important;
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has(model-response) aside a,
+body:has(model-response) aside button,
+body:has(user-query) aside a,
+body:has(user-query) aside button {
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has(model-response) aside li,
+body:has(model-response) aside [role="listitem"],
+body:has(user-query) aside li,
+body:has(user-query) aside [role="listitem"] {
+  background: var(--skin-sidebar-panel) !important;
+  border: 1px solid var(--skin-sidebar-border) !important;
+  border-radius: 10px !important;
+  backdrop-filter: blur(1.5px) !important;
+}
+
+body:has(model-response) aside [class*="secondary"],
+body:has(user-query) aside [class*="secondary"] {
+  color: var(--skin-sidebar-text-muted) !important;
+}
+
+body:has(model-response) conversations,
+body:has(model-response) conversations-container,
+body:has(model-response) conversations-list,
+body:has(model-response) chat-history-list,
+body:has(user-query) conversations,
+body:has(user-query) conversations-container,
+body:has(user-query) conversations-list,
+body:has(user-query) chat-history-list {
+  background: transparent !important;
+}
+
+body:has(model-response) conversation,
+body:has(model-response) conversation-button,
+body:has(model-response) conversation-items-container,
+body:has(user-query) conversation,
+body:has(user-query) conversation-button,
+body:has(user-query) conversation-items-container {
+  background: var(--skin-sidebar-panel) !important;
+  border: 1px solid var(--skin-sidebar-border) !important;
+  border-radius: 10px !important;
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has(model-response) conversation-title,
+body:has(model-response) .conversation-title,
+body:has(model-response) .conversation-title-container,
+body:has(model-response) conversation-button .bot-name,
+body:has(user-query) conversation-title,
+body:has(user-query) .conversation-title,
+body:has(user-query) .conversation-title-container,
+body:has(user-query) conversation-button .bot-name {
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has(model-response) bard-mode-switcher .bard-text,
+body:has(model-response) top-bar-actions,
+body:has(model-response) top-bar-actions *,
+body:has(user-query) bard-mode-switcher .bard-text,
+body:has(user-query) top-bar-actions,
+body:has(user-query) top-bar-actions * {
+  color: rgba(46, 51, 54, 1) !important;
+}
+
+body:has(model-response) bard-mode-switcher .bard-logo-container,
+body:has(user-query) bard-mode-switcher .bard-logo-container,
+body:has(model-response) bard-mode-switcher .bard-logo-container.logo-only,
+body:has(user-query) bard-mode-switcher .bard-logo-container.logo-only {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+body:has(model-response) chat-input-container,
+body:has(model-response) input-area-v2,
+body:has(user-query) chat-input-container,
+body:has(user-query) input-area-v2 {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+body:has(model-response) chat-input-container *,
+body:has(model-response) input-area-v2 *,
+body:has(user-query) chat-input-container *,
+body:has(user-query) input-area-v2 * {
+  color: inherit !important;
+}
+
+body:has(model-response) [style*="--sharp-edge-bottom-shadow"],
+body:has(user-query) [style*="--sharp-edge-bottom-shadow"],
+body:has(model-response) [class*="bottom-shadow"],
+body:has(user-query) [class*="bottom-shadow"],
+body:has(model-response) [class*="edge-shadow"],
+body:has(user-query) [class*="edge-shadow"],
+body:has(model-response) .human-review-disclosure-container,
+body:has(user-query) .human-review-disclosure-container {
+  box-shadow: none !important;
+  background: transparent !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+body:has(model-response) chat-history-scroll-container::before,
+body:has(model-response) chat-history-scroll-container::after,
+body:has(user-query) chat-history-scroll-container::before,
+body:has(user-query) chat-history-scroll-container::after,
+body:has(model-response) .chat-history-scroll-container::before,
+body:has(model-response) .chat-history-scroll-container::after,
+body:has(user-query) .chat-history-scroll-container::before,
+body:has(user-query) .chat-history-scroll-container::after {
+  content: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body:has(model-response) .autosuggest-scrim,
+body:has(user-query) .autosuggest-scrim {
+  display: none !important;
+  opacity: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+body:has(model-response) [class*="sharp-edge-bottom-shadow"],
+body:has(user-query) [class*="sharp-edge-bottom-shadow"],
+body:has(model-response) [class*="thread-bottom"],
+body:has(user-query) [class*="thread-bottom"],
+body:has(model-response) [class*="content-fade"],
+body:has(user-query) [class*="content-fade"],
+body:has(model-response) [class*="bottom-shadow"],
+body:has(user-query) [class*="bottom-shadow"] {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+body:has(model-response) chat-window-content::before,
+body:has(model-response) chat-window-content::after,
+body:has(user-query) chat-window-content::before,
+body:has(user-query) chat-window-content::after {
+  content: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body:has(model-response) input-container.input-gradient::before,
+body:has(model-response) input-container.input-gradient::after,
+body:has(user-query) input-container.input-gradient::before,
+body:has(user-query) input-container.input-gradient::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}

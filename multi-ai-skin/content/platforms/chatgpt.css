@@ -1,0 +1,119 @@
+﻿body:has([data-testid^="conversation-turn-"]) {
+  --skin-shell-bg: rgba(223, 228, 232, 1);
+  --skin-shell-bg-soft: rgba(223, 228, 232, 1);
+  --skin-shell-header-left: rgba(223, 228, 231, 1);
+  --skin-shell-header-right: rgba(184, 189, 192, 1);
+  --skin-shell-border: #b7bec6;
+  --skin-action-fg: #4e5966;
+  --skin-action-fg-hover: #1f2834;
+  --skin-action-bg-hover: rgba(255, 255, 255, 0.75);
+  --skin-sidebar-bg: rgba(63, 69, 77, 0.95);
+  --skin-sidebar-panel: rgba(154, 161, 168, 0.38);
+  --skin-sidebar-text: rgba(238, 242, 246, 0.95);
+  --skin-sidebar-text-muted: rgba(214, 220, 226, 0.74);
+  --skin-sidebar-border: rgba(255, 255, 255, 0.58);
+  background-color: var(--skin-shell-bg) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) main,
+body:has([data-testid^="conversation-turn-"]) [class*="react-scroll-to-bottom"],
+body:has([data-testid^="conversation-turn-"]) [data-testid="conversation-turn-0"]::before {
+  background: linear-gradient(180deg, var(--skin-shell-bg-soft) 0%, var(--skin-shell-bg) 100%) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) header,
+body:has([data-testid^="conversation-turn-"]) [role="banner"] {
+  background: linear-gradient(
+    90deg,
+    var(--skin-shell-header-left) 0%,
+    var(--skin-shell-header-left) 20%,
+    var(--skin-shell-header-right) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 1) !important;
+  border-radius: 0 !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) #thread-bottom-container,
+body:has([data-testid^="conversation-turn-"]) #thread-bottom-container > div,
+body:has([data-testid^="conversation-turn-"]) #thread-bottom {
+  background: var(--skin-shell-bg) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) aside,
+body:has([data-testid^="conversation-turn-"]) [class*="sidebar"] {
+  background: linear-gradient(180deg, rgba(55, 61, 68, 0.98) 0%, var(--skin-sidebar-bg) 100%) !important;
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) aside a,
+body:has([data-testid^="conversation-turn-"]) aside button {
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) aside li,
+body:has([data-testid^="conversation-turn-"]) aside [role="listitem"],
+body:has([data-testid^="conversation-turn-"]) aside [data-testid*="history"],
+body:has([data-testid^="conversation-turn-"]) aside [data-testid*="conversation"] {
+  background: var(--skin-sidebar-panel) !important;
+  border: 1px solid var(--skin-sidebar-border) !important;
+  border-radius: 10px !important;
+  backdrop-filter: blur(1.5px) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) aside .text-token-text-secondary,
+body:has([data-testid^="conversation-turn-"]) aside [class*="secondary"] {
+  color: var(--skin-sidebar-text-muted) !important;
+}
+
+[data-testid="copy-turn-action-button"],
+[data-testid="good-response-turn-action-button"],
+[data-testid="bad-response-turn-action-button"],
+[data-testid="retry-button"],
+[data-testid^="conversation-turn-"] .text-token-text-secondary,
+[data-testid^="conversation-turn"] .text-token-text-secondary,
+[data-testid^="conversation-turn-"] button[aria-label*="Edit"],
+[data-testid^="conversation-turn-"] button[aria-label*="Share"],
+[data-testid^="conversation-turn-"] button[aria-label*="More"] {
+  color: var(--skin-action-fg) !important;
+}
+
+[data-testid^="conversation-turn-"] .text-token-text-secondary .icon,
+[data-testid^="conversation-turn"] .text-token-text-secondary .icon,
+[data-testid^="conversation-turn-"] .text-token-text-secondary svg,
+[data-testid^="conversation-turn"] .text-token-text-secondary svg {
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
+[data-testid="copy-turn-action-button"]:hover,
+[data-testid="good-response-turn-action-button"]:hover,
+[data-testid="bad-response-turn-action-button"]:hover,
+[data-testid="retry-button"]:hover,
+[data-testid^="conversation-turn-"] .text-token-text-secondary:hover,
+[data-testid^="conversation-turn"] .text-token-text-secondary:hover,
+[data-testid^="conversation-turn-"] button[aria-label*="Edit"]:hover,
+[data-testid^="conversation-turn-"] button[aria-label*="Share"]:hover,
+[data-testid^="conversation-turn-"] button[aria-label*="More"]:hover {
+  color: var(--skin-action-fg-hover) !important;
+  background: var(--skin-action-bg-hover) !important;
+  border-radius: 8px !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) #page-header .text-token-text-tertiary,
+body:has([data-testid^="conversation-turn-"]) #page-header .icon-sm.text-token-text-tertiary,
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="model-switcher-dropdown-button"],
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="share-chat-button"],
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="conversation-options-button"],
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Share"],
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Conversation options"] {
+  color: var(--skin-action-fg) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="model-switcher-dropdown-button"]:hover,
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="share-chat-button"]:hover,
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="conversation-options-button"]:hover,
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Share"]:hover,
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Conversation options"]:hover {
+  color: var(--skin-action-fg-hover) !important;
+  background: var(--skin-action-bg-hover) !important;
+}

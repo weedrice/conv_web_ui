@@ -1,0 +1,229 @@
+﻿body:has([data-test-render-count]) {
+  --skin-shell-bg: rgba(223, 228, 232, 1);
+  --skin-shell-bg-soft: rgba(223, 228, 232, 1);
+  --skin-shell-header-left: rgba(223, 228, 231, 1);
+  --skin-shell-header-right: rgba(184, 189, 192, 1);
+  --skin-shell-border: #b7bec6;
+  --skin-action-fg: #4e5966;
+  --skin-action-fg-hover: #1f2834;
+  --skin-action-bg-hover: rgba(255, 255, 255, 0.75);
+  --skin-sidebar-bg: rgba(63, 69, 77, 0.95);
+  --skin-sidebar-panel: rgba(154, 161, 168, 0.38);
+  --skin-sidebar-text: rgba(238, 242, 246, 0.95);
+  --skin-sidebar-text-muted: rgba(214, 220, 226, 0.74);
+  --skin-sidebar-border: rgba(255, 255, 255, 0.58);
+  background-color: var(--skin-shell-bg) !important;
+}
+
+body:has([data-test-render-count]) main,
+body:has([data-test-render-count]) [data-autoscroll-container] {
+  background: linear-gradient(180deg, var(--skin-shell-bg-soft) 0%, var(--skin-shell-bg) 100%) !important;
+}
+
+body:has([data-test-render-count]) header,
+body:has([data-test-render-count]) [role="banner"] {
+  background: linear-gradient(
+    90deg,
+    var(--skin-shell-header-left) 0%,
+    var(--skin-shell-header-left) 20%,
+    var(--skin-shell-header-right) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 1) !important;
+  border-radius: 0 !important;
+}
+
+body:has([data-test-render-count]) aside,
+body:has([data-test-render-count]) [class*="sidebar"] {
+  background: linear-gradient(180deg, rgba(55, 61, 68, 0.98) 0%, var(--skin-sidebar-bg) 100%) !important;
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has([data-test-render-count]) aside a,
+body:has([data-test-render-count]) aside button {
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has([data-test-render-count]) aside li,
+body:has([data-test-render-count]) aside [role="listitem"] {
+  background: var(--skin-sidebar-panel) !important;
+  border: 1px solid var(--skin-sidebar-border) !important;
+  border-radius: 10px !important;
+  backdrop-filter: blur(1.5px) !important;
+}
+
+body:has([data-test-render-count]) aside [class*="secondary"] {
+  color: var(--skin-sidebar-text-muted) !important;
+}
+
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] {
+  background: linear-gradient(180deg, rgba(55, 61, 68, 0.98) 0%, var(--skin-sidebar-bg) 100%) !important;
+  border-right: 1px solid var(--skin-sidebar-border) !important;
+  box-shadow: 12px 0 28px rgba(16, 20, 24, 0.18) !important;
+}
+
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] > div,
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] .flex-grow,
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] ul,
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] li {
+  background: transparent !important;
+}
+
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] a[class],
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] button[class],
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] [role="button"][class] {
+  color: var(--skin-sidebar-text) !important;
+  border-radius: 12px !important;
+}
+
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] a[data-dd-action-name^="sidebar-"],
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] button[data-dd-action-name^="sidebar-"],
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] a[data-dd-action-name="sidebar-chat-item"] {
+  background: transparent !important;
+}
+
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] a[data-dd-action-name^="sidebar-"]:hover,
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] button[data-dd-action-name^="sidebar-"]:hover,
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] a[data-dd-action-name="sidebar-chat-item"]:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] a[aria-current="page"],
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] a[class*="!bg-bg-300"] {
+  background: rgba(154, 161, 168, 0.38) !important;
+  border: 1px solid var(--skin-sidebar-border) !important;
+}
+
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] h2,
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] span,
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] svg,
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] a,
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] button {
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] [class*="text-text-4"],
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] [class*="text-text-5"] {
+  color: var(--skin-sidebar-text-muted) !important;
+}
+
+body:has([data-test-render-count]) nav[class*="fixed"][class*="h-screen"] [data-testid="user-menu-button"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+body:has([data-test-render-count]) [data-testid="page-header"],
+body:has([data-test-render-count]) [data-testid="page-header"] > div:first-child,
+body:has([data-test-render-count]) [data-testid="page-header"] > div:last-child {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+body:has([data-test-render-count]) div:has(> [data-testid="chat-title-button"]):has(> .w-\[1\.5px\].h-7):has(> [data-testid="chat-menu-trigger"]),
+body:has([data-test-render-count]) div.flex.items-center.group:has(> [data-testid="chat-title-button"]):has(> [data-testid="chat-menu-trigger"]) {
+  background: linear-gradient(180deg, rgba(48, 53, 59, 0.98) 0%, rgba(34, 39, 45, 1) 100%) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+}
+
+body:has([data-test-render-count]) [data-testid="chat-title-button"],
+body:has([data-test-render-count]) [data-testid="chat-menu-trigger"],
+body:has([data-test-render-count]) [data-testid="chat-title-button"] + div,
+body:has([data-test-render-count]) [data-testid="chat-title-button"] div,
+body:has([data-test-render-count]) [data-testid="chat-menu-trigger"] svg {
+  color: rgba(245, 248, 251, 0.96) !important;
+}
+
+body:has([data-test-render-count]) [data-testid="chat-title-button"],
+body:has([data-test-render-count]) [data-testid="chat-menu-trigger"] {
+  background: rgba(255, 255, 255, 0.01) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+body:has([data-test-render-count]) [data-testid="chat-title-button"]:hover,
+body:has([data-test-render-count]) [data-testid="chat-menu-trigger"]:hover {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+body:has([data-test-render-count]) [data-testid="chat-title-button"] {
+  border-radius: 12px 0 0 12px !important;
+}
+
+body:has([data-test-render-count]) [data-testid="chat-menu-trigger"] {
+  border-radius: 0 12px 12px 0 !important;
+  border-left: none !important;
+}
+
+body:has([data-test-render-count]) [data-testid="chat-title-button"] + div {
+  background: rgba(255, 255, 255, 0.22) !important;
+}
+
+body:has([data-test-render-count]) [data-testid="chat-title-button"]:hover,
+body:has([data-test-render-count]) [data-testid="chat-menu-trigger"]:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+
+body:has([data-test-render-count]) [data-testid="chat-title-button"] .truncate {
+  color: inherit !important;
+}
+
+body:has([data-test-render-count]) [data-testid="wiggle-controls-actions-share"] {
+  background: linear-gradient(180deg, rgba(48, 53, 59, 0.98) 0%, rgba(34, 39, 45, 1) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: rgba(252, 253, 255, 0.98) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 6px 16px rgba(18, 22, 27, 0.18) !important;
+}
+
+body:has([data-test-render-count]) [data-testid="wiggle-controls-actions-share"]:hover {
+  background: linear-gradient(180deg, rgba(104, 111, 120, 0.98) 0%, rgba(82, 89, 97, 1) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.34) !important;
+}
+
+body:has([data-test-render-count]) [data-chat-input-container="true"],
+body:has([data-test-render-count]) [data-chat-input-container="true"] > div,
+body:has([data-test-render-count]) [data-testid="chat-input-grid-container"],
+body:has([data-test-render-count]) [data-testid="chat-input-grid-area"],
+body:has([data-test-render-count]) [data-testid="chat-input-grid-area"] fieldset,
+body:has([data-test-render-count]) [data-alert-band-wrapper="true"] {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+body:has([data-test-render-count]) [data-chat-input-container="true"] .bg-bg-000 {
+  background: linear-gradient(180deg, rgba(55, 61, 68, 0.94) 0%, rgba(47, 52, 58, 0.98) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 28px rgba(20, 24, 28, 0.18) !important;
+}
+
+body:has([data-test-render-count]) [data-chat-input-container="true"] [data-testid="chat-input"],
+body:has([data-test-render-count]) [data-chat-input-container="true"] textarea,
+body:has([data-test-render-count]) [data-chat-input-container="true"] [data-testid="model-selector-dropdown"],
+body:has([data-test-render-count]) [data-chat-input-container="true"] button,
+body:has([data-test-render-count]) [data-chat-input-container="true"] svg {
+  color: rgba(245, 248, 251, 0.96) !important;
+}
+
+body:has([data-test-render-count]) [data-chat-input-container="true"] [data-testid="chat-input"]::before,
+body:has([data-test-render-count]) [data-chat-input-container="true"] textarea::placeholder {
+  color: rgba(214, 220, 226, 0.7) !important;
+}
+
+body:has([data-test-render-count]) [data-disclaimer="true"] {
+  background: rgba(83, 89, 96, 0.72) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+  color: rgba(236, 241, 245, 0.88) !important;
+}
+
+body:has([data-test-render-count]) [data-disclaimer="true"] a {
+  color: rgba(244, 248, 251, 0.94) !important;
+}
+
+body:has([data-test-render-count]) [data-disclaimer="true"] a:hover {
+  color: rgba(255, 255, 255, 1) !important;
+}
