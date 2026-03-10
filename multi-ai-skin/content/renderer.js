@@ -97,14 +97,25 @@
    * Builds the avatar source URL.
    * Prefer avatarBase64, then avatarFile, then the default avatar.png path.
    */
+  function getExtensionAssetUrl(path) {
+    if (
+      typeof chrome !== 'undefined' &&
+      chrome.runtime &&
+      typeof chrome.runtime.getURL === 'function'
+    ) {
+      return chrome.runtime.getURL(path);
+    }
+    return path;
+  }
+
   function getAvatarSrc(charInfo) {
     if (charInfo.avatarBase64) {
       return charInfo.avatarBase64;
     }
     if (charInfo.avatarFile) {
-      return chrome.runtime.getURL('assets/characters/' + charInfo.avatarFile);
+      return getExtensionAssetUrl('assets/characters/' + charInfo.avatarFile);
     }
-    return chrome.runtime.getURL('assets/characters/' + charInfo.id + '/avatar.png');
+    return getExtensionAssetUrl('assets/characters/' + charInfo.id + '/avatar.png');
   }
 
   function normalizeVisibleText(text) {

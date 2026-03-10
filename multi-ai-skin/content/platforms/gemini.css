@@ -13,14 +13,13 @@ body:has(user-query) {
   --skin-sidebar-text: rgba(238, 242, 246, 0.95);
   --skin-sidebar-text-muted: rgba(214, 220, 226, 0.74);
   --skin-sidebar-border: rgba(255, 255, 255, 0.58);
+  --bard-color-sidenav-scrim: transparent !important;
+  --mat-sidenav-scrim-color: transparent !important;
   --bard-color-sidenav-tile-background-aurora: rgba(154, 161, 168, 0.38) !important;
-  --bard-color-sidenav-tile-text-aurora: rgba(238, 242, 246, 0.95) !important;
-  --sidenav-button-default-text-color: rgba(238, 242, 246, 0.95) !important;
   --sidenav-button-hover-background-color: rgba(255, 255, 255, 0.08) !important;
   --sidenav-button-focus-background-color: rgba(255, 255, 255, 0.12) !important;
   --sidenav-button-pressed-background-color: rgba(255, 255, 255, 0.16) !important;
   --sidenav-button-selected-background-color: rgba(154, 161, 168, 0.52) !important;
-  --sidenav-button-selected-text-color: rgba(255, 255, 255, 1) !important;
   --gem-sys-color--on-surface: rgba(46, 51, 54, 1) !important;
   --gem-sys-color--on-surface-variant: rgba(95, 102, 110, 1) !important;
   --gem-sys-color--on-surface-low: rgba(118, 124, 132, 1) !important;
@@ -54,14 +53,30 @@ body:has(user-query) aside,
 body:has(model-response) [class*="sidenav"],
 body:has(user-query) [class*="sidenav"] {
   background: linear-gradient(180deg, rgba(55, 61, 68, 0.98) 0%, var(--skin-sidebar-bg) 100%) !important;
-  color: var(--skin-sidebar-text) !important;
 }
 
-body:has(model-response) aside a,
-body:has(model-response) aside button,
-body:has(user-query) aside a,
-body:has(user-query) aside button {
-  color: var(--skin-sidebar-text) !important;
+body:has(model-response) aside,
+body:has(model-response) aside *,
+body:has(model-response) [class*="sidenav"],
+body:has(model-response) [class*="sidenav"] *,
+body:has(user-query) aside,
+body:has(user-query) aside *,
+body:has(user-query) [class*="sidenav"],
+body:has(user-query) [class*="sidenav"] *,
+body:has(model-response) conversation-title,
+body:has(model-response) .conversation-title,
+body:has(model-response) .conversation-title-container,
+body:has(model-response) conversation-button .bot-name,
+body:has(user-query) conversation-title,
+body:has(user-query) .conversation-title,
+body:has(user-query) .conversation-title-container,
+body:has(user-query) conversation-button .bot-name,
+body:has(model-response) [class*="sidenav"] svg,
+body:has(model-response) [class*="sidenav"] mat-icon,
+body:has(user-query) [class*="sidenav"] svg,
+body:has(user-query) [class*="sidenav"] mat-icon {
+  color: rgba(255, 255, 255, 0.96) !important;
+  fill: currentColor !important;
 }
 
 body:has(model-response) aside li,
@@ -99,18 +114,6 @@ body:has(user-query) conversation-items-container {
   background: var(--skin-sidebar-panel) !important;
   border: 1px solid var(--skin-sidebar-border) !important;
   border-radius: 10px !important;
-  color: var(--skin-sidebar-text) !important;
-}
-
-body:has(model-response) conversation-title,
-body:has(model-response) .conversation-title,
-body:has(model-response) .conversation-title-container,
-body:has(model-response) conversation-button .bot-name,
-body:has(user-query) conversation-title,
-body:has(user-query) .conversation-title,
-body:has(user-query) .conversation-title-container,
-body:has(user-query) conversation-button .bot-name {
-  color: var(--skin-sidebar-text) !important;
 }
 
 body:has(model-response) bard-mode-switcher .bard-text,
@@ -187,6 +190,10 @@ body:has(model-response) [class*="sharp-edge-bottom-shadow"],
 body:has(user-query) [class*="sharp-edge-bottom-shadow"],
 body:has(model-response) [class*="thread-bottom"],
 body:has(user-query) [class*="thread-bottom"],
+body:has(model-response) [class*="scroll-placeholder"],
+body:has(user-query) [class*="scroll-placeholder"],
+body:has(model-response) [class*="scroll-shadow"],
+body:has(user-query) [class*="scroll-shadow"],
 body:has(model-response) [class*="content-fade"],
 body:has(user-query) [class*="content-fade"],
 body:has(model-response) [class*="bottom-shadow"],
@@ -211,6 +218,186 @@ body:has(model-response) input-container.input-gradient::before,
 body:has(model-response) input-container.input-gradient::after,
 body:has(user-query) input-container.input-gradient::before,
 body:has(user-query) input-container.input-gradient::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+body.skin-platform-gemini.skin-view-home {
+  --skin-shell-bg: rgba(223, 228, 232, 1);
+  --skin-shell-bg-soft: rgba(223, 228, 232, 1);
+  --skin-shell-header-left: rgba(223, 228, 231, 1);
+  --skin-shell-header-right: rgba(184, 189, 192, 1);
+  --skin-shell-border: #b7bec6;
+  --skin-action-fg: #4e5966;
+  --skin-action-fg-hover: #1f2834;
+  --skin-action-bg-hover: rgba(255, 255, 255, 0.75);
+  --skin-sidebar-bg: rgba(63, 69, 77, 0.95);
+  --skin-sidebar-panel: rgba(154, 161, 168, 0.38);
+  --skin-sidebar-text: rgba(238, 242, 246, 0.95);
+  --skin-sidebar-text-muted: rgba(214, 220, 226, 0.74);
+  --skin-sidebar-border: rgba(255, 255, 255, 0.58);
+  --bard-color-sidenav-scrim: transparent !important;
+  --mat-sidenav-scrim-color: transparent !important;
+  --bard-color-sidenav-tile-background-aurora: rgba(154, 161, 168, 0.38) !important;
+  --sidenav-button-hover-background-color: rgba(255, 255, 255, 0.08) !important;
+  --sidenav-button-focus-background-color: rgba(255, 255, 255, 0.12) !important;
+  --sidenav-button-pressed-background-color: rgba(255, 255, 255, 0.16) !important;
+  --sidenav-button-selected-background-color: rgba(154, 161, 168, 0.52) !important;
+  --gem-sys-color--on-surface: rgba(46, 51, 54, 1) !important;
+  --gem-sys-color--on-surface-variant: rgba(95, 102, 110, 1) !important;
+  --gem-sys-color--on-surface-low: rgba(118, 124, 132, 1) !important;
+  --gem-sys-color--outline-variant: rgba(177, 183, 189, 1) !important;
+  background-color: var(--skin-shell-bg) !important;
+}
+
+body.skin-platform-gemini.skin-view-home main,
+body.skin-platform-gemini.skin-view-home .conversation-container {
+  background: linear-gradient(180deg, var(--skin-shell-bg-soft) 0%, var(--skin-shell-bg) 100%) !important;
+}
+
+body.skin-platform-gemini.skin-view-home header,
+body.skin-platform-gemini.skin-view-home [role="banner"] {
+  background: linear-gradient(
+    90deg,
+    var(--skin-shell-header-left) 0%,
+    var(--skin-shell-header-left) 20%,
+    var(--skin-shell-header-right) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 1) !important;
+  border-radius: 0 !important;
+}
+
+body.skin-platform-gemini.skin-view-home aside,
+body.skin-platform-gemini.skin-view-home [class*="sidenav"] {
+  background: linear-gradient(180deg, rgba(55, 61, 68, 0.98) 0%, var(--skin-sidebar-bg) 100%) !important;
+}
+
+body.skin-platform-gemini.skin-view-home aside,
+body.skin-platform-gemini.skin-view-home aside *,
+body.skin-platform-gemini.skin-view-home [class*="sidenav"],
+body.skin-platform-gemini.skin-view-home [class*="sidenav"] *,
+body.skin-platform-gemini.skin-view-home conversation-title,
+body.skin-platform-gemini.skin-view-home .conversation-title,
+body.skin-platform-gemini.skin-view-home .conversation-title-container,
+body.skin-platform-gemini.skin-view-home conversation-button .bot-name,
+body.skin-platform-gemini.skin-view-home [class*="sidenav"] svg,
+body.skin-platform-gemini.skin-view-home [class*="sidenav"] mat-icon {
+  color: rgba(255, 255, 255, 0.96) !important;
+  fill: currentColor !important;
+}
+
+body.skin-platform-gemini.skin-view-home aside li,
+body.skin-platform-gemini.skin-view-home aside [role="listitem"],
+body.skin-platform-gemini.skin-view-home conversation,
+body.skin-platform-gemini.skin-view-home conversation-button,
+body.skin-platform-gemini.skin-view-home conversation-items-container,
+body.skin-platform-gemini.skin-view-home [class*="sidenav"] button,
+body.skin-platform-gemini.skin-view-home [class*="sidenav"] [role="button"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  backdrop-filter: none !important;
+}
+
+body.skin-platform-gemini.skin-view-home .card-container intent-card > button.card.card-zero-state {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.88) !important;
+  border-radius: 18px !important;
+  color: rgba(78, 89, 102, 1) !important;
+  box-shadow: 0 3px 10px rgba(44, 51, 58, 0.08) !important;
+  backdrop-filter: blur(4px) !important;
+  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
+}
+
+body.skin-platform-gemini.skin-view-home .card-container intent-card > button.card.card-zero-state:hover {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(255, 255, 255, 1) !important;
+  color: rgba(31, 40, 52, 1) !important;
+  box-shadow: 0 8px 18px rgba(34, 40, 48, 0.14) !important;
+}
+
+body.skin-platform-gemini.skin-view-home .card-container intent-card > button.card.card-zero-state:active {
+  background: rgba(229, 234, 238, 0.98) !important;
+  box-shadow: inset 0 1px 2px rgba(34, 40, 48, 0.12) !important;
+}
+
+body.skin-platform-gemini.skin-view-home .card-container intent-card > button.card.card-zero-state .card-label,
+body.skin-platform-gemini.skin-view-home .card-container intent-card > button.card.card-zero-state mat-icon,
+body.skin-platform-gemini.skin-view-home .card-container intent-card > button.card.card-zero-state svg {
+  color: currentColor !important;
+  fill: currentColor !important;
+}
+
+body.skin-platform-gemini.skin-view-home bard-mode-switcher .bard-text,
+body.skin-platform-gemini.skin-view-home top-bar-actions,
+body.skin-platform-gemini.skin-view-home top-bar-actions * {
+  color: rgba(46, 51, 54, 1) !important;
+}
+
+body.skin-platform-gemini.skin-view-home .buttons-container.pillbox,
+body.skin-platform-gemini.skin-view-home [data-test-id="pillbox"] {
+  background: transparent !important;
+}
+
+body.skin-platform-gemini.skin-view-home .buttons-container.pillbox .gds-pillbox-button,
+body.skin-platform-gemini.skin-view-home [data-test-id="pillbox"] .gds-pillbox-button {
+  min-width: 44px !important;
+  height: 40px !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.52) !important;
+  background: linear-gradient(180deg, rgba(106, 112, 118, 0.82) 0%, rgba(86, 92, 98, 0.92) 100%) !important;
+  color: rgba(236, 240, 244, 0.96) !important;
+  box-shadow: 0 8px 18px rgba(41, 47, 54, 0.18) !important;
+  letter-spacing: 0.02em !important;
+}
+
+body.skin-platform-gemini.skin-view-home .buttons-container.pillbox .gds-pillbox-button span,
+body.skin-platform-gemini.skin-view-home [data-test-id="pillbox"] .gds-pillbox-button span {
+  color: inherit !important;
+}
+
+body.skin-platform-gemini.skin-view-home .buttons-container.pillbox .gds-pillbox-button:disabled,
+body.skin-platform-gemini.skin-view-home [data-test-id="pillbox"] .gds-pillbox-button:disabled {
+  opacity: 1 !important;
+  color: rgba(236, 240, 244, 0.96) !important;
+  -webkit-text-fill-color: rgba(236, 240, 244, 0.96) !important;
+}
+
+body.skin-platform-gemini.skin-view-home chat-input-container,
+body.skin-platform-gemini.skin-view-home input-area-v2 {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+body.skin-platform-gemini.skin-view-home chat-input-container *,
+body.skin-platform-gemini.skin-view-home input-area-v2 * {
+  color: inherit !important;
+}
+
+body.skin-platform-gemini.skin-view-home .autosuggest-scrim,
+body.skin-platform-gemini.skin-view-home [style*="--sharp-edge-bottom-shadow"],
+body.skin-platform-gemini.skin-view-home [class*="bottom-shadow"],
+body.skin-platform-gemini.skin-view-home [class*="edge-shadow"],
+body.skin-platform-gemini.skin-view-home [class*="scroll-placeholder"],
+body.skin-platform-gemini.skin-view-home [class*="scroll-shadow"],
+body.skin-platform-gemini.skin-view-home [class*="content-fade"],
+body.skin-platform-gemini.skin-view-home .human-review-disclosure-container {
+  box-shadow: none !important;
+  background: transparent !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+body.skin-platform-gemini.skin-view-home chat-window-content::before,
+body.skin-platform-gemini.skin-view-home chat-window-content::after,
+body.skin-platform-gemini.skin-view-home input-container.input-gradient::before,
+body.skin-platform-gemini.skin-view-home input-container.input-gradient::after {
   content: none !important;
   display: none !important;
   background: transparent !important;

@@ -41,8 +41,22 @@ body:has([data-testid^="conversation-turn-"]) #thread-bottom {
 
 body:has([data-testid^="conversation-turn-"]) aside,
 body:has([data-testid^="conversation-turn-"]) [class*="sidebar"] {
-  background: linear-gradient(180deg, rgba(55, 61, 68, 0.98) 0%, var(--skin-sidebar-bg) 100%) !important;
+  background: var(--skin-sidebar-bg) !important;
   color: var(--skin-sidebar-text) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) [data-testid="accounts-profile-button"],
+body:has([data-testid^="conversation-turn-"]) [data-testid="accounts-profile-button"]::before,
+body:has([data-testid^="conversation-turn-"]) .bg-token-bg-elevated-secondary,
+body:has([data-testid^="conversation-turn-"]) .bg-token-bg-elevated-secondary > .relative,
+body:has([data-testid^="conversation-turn-"]) .bg-token-bg-elevated-secondary > div,
+body:has([data-testid^="conversation-turn-"]) .sticky.bottom-0.z-30.py-1\\.5.empty\\:hidden,
+body:has([data-testid^="conversation-turn-"]) div[class*="bg-token-bg-elevated-secondary"],
+body:has([data-testid^="conversation-turn-"]) div[data-sidebar-item="true"],
+body:has([data-testid^="conversation-turn-"]) div[data-sidebar-item="true"] > div,
+body:has([data-testid^="conversation-turn-"]) div[data-sidebar-item="true"] > div > div {
+  background: var(--skin-sidebar-bg) !important;
+  background-color: var(--skin-sidebar-bg) !important;
 }
 
 body:has([data-testid^="conversation-turn-"]) aside a,
@@ -116,4 +130,146 @@ body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="S
 body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Conversation options"]:hover {
   color: var(--skin-action-fg-hover) !important;
   background: var(--skin-action-bg-hover) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) footer,
+body:has([data-testid^="conversation-turn-"]) footer *,
+body:has([data-testid^="conversation-turn-"]) [class*="disclaimer"],
+body:has([data-testid^="conversation-turn-"]) [class*="disclaimer"] *,
+body:has([data-testid^="conversation-turn-"]) [class*="cookie"] {
+  color: rgba(0, 0, 0, 0.74) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home {
+  --skin-shell-bg: rgba(223, 228, 232, 1);
+  --skin-shell-bg-soft: rgba(223, 228, 232, 1);
+  --skin-shell-header-left: rgba(223, 228, 231, 1);
+  --skin-shell-header-right: rgba(184, 189, 192, 1);
+  --skin-shell-border: #b7bec6;
+  --skin-action-fg: #4e5966;
+  --skin-action-fg-hover: #1f2834;
+  --skin-action-bg-hover: rgba(255, 255, 255, 0.75);
+  --skin-sidebar-bg: rgba(63, 69, 77, 0.95);
+  --skin-sidebar-panel: rgba(154, 161, 168, 0.38);
+  --skin-sidebar-text: rgba(238, 242, 246, 0.95);
+  --skin-sidebar-text-muted: rgba(214, 220, 226, 0.74);
+  --skin-sidebar-border: rgba(255, 255, 255, 0.58);
+  background-color: var(--skin-shell-bg) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home main,
+body.skin-platform-chatgpt.skin-view-home [class*="react-scroll-to-bottom"] {
+  background: linear-gradient(180deg, var(--skin-shell-bg-soft) 0%, var(--skin-shell-bg) 100%) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home header,
+body.skin-platform-chatgpt.skin-view-home [role="banner"] {
+  background: linear-gradient(
+    90deg,
+    var(--skin-shell-header-left) 0%,
+    var(--skin-shell-header-left) 20%,
+    var(--skin-shell-header-right) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 1) !important;
+  border-radius: 0 !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home header,
+body.skin-platform-chatgpt.skin-view-home [role="banner"],
+body.skin-platform-chatgpt.skin-view-home #page-header,
+body.skin-platform-chatgpt.skin-view-home #page-header *,
+body.skin-platform-chatgpt.skin-view-home header button,
+body.skin-platform-chatgpt.skin-view-home header a,
+body.skin-platform-chatgpt.skin-view-home header svg,
+body.skin-platform-chatgpt.skin-view-home [role="banner"] button,
+body.skin-platform-chatgpt.skin-view-home [role="banner"] a,
+body.skin-platform-chatgpt.skin-view-home [role="banner"] svg {
+  color: rgba(46, 51, 54, 1) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home header svg,
+body.skin-platform-chatgpt.skin-view-home [role="banner"] svg,
+body.skin-platform-chatgpt.skin-view-home #page-header svg {
+  fill: currentColor !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home h1.text-page-header,
+body.skin-platform-chatgpt.skin-view-home h1.text-page-header *,
+body.skin-platform-chatgpt.skin-view-home h1.text-page-header .text-inherit,
+body.skin-platform-chatgpt.skin-view-home h1.text-page-header button {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home aside,
+body.skin-platform-chatgpt.skin-view-home [class*="sidebar"] {
+  background: var(--skin-sidebar-bg) !important;
+  color: var(--skin-sidebar-text) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home [data-testid="accounts-profile-button"],
+body.skin-platform-chatgpt.skin-view-home [data-testid="accounts-profile-button"]::before,
+body.skin-platform-chatgpt.skin-view-home .bg-token-bg-elevated-secondary,
+body.skin-platform-chatgpt.skin-view-home .bg-token-bg-elevated-secondary > .relative,
+body.skin-platform-chatgpt.skin-view-home .bg-token-bg-elevated-secondary > div,
+body.skin-platform-chatgpt.skin-view-home .sticky.bottom-0.z-30.py-1\\.5.empty\\:hidden,
+body.skin-platform-chatgpt.skin-view-home div[class*="bg-token-bg-elevated-secondary"],
+body.skin-platform-chatgpt.skin-view-home div[data-sidebar-item="true"],
+body.skin-platform-chatgpt.skin-view-home div[data-sidebar-item="true"] > div,
+body.skin-platform-chatgpt.skin-view-home div[data-sidebar-item="true"] > div > div {
+  background: var(--skin-sidebar-bg) !important;
+  background-color: var(--skin-sidebar-bg) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home aside a,
+body.skin-platform-chatgpt.skin-view-home aside button {
+  color: var(--skin-sidebar-text) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home aside li,
+body.skin-platform-chatgpt.skin-view-home aside [role="listitem"],
+body.skin-platform-chatgpt.skin-view-home aside [data-testid*="history"],
+body.skin-platform-chatgpt.skin-view-home aside [data-testid*="conversation"] {
+  background: var(--skin-sidebar-panel) !important;
+  border: 1px solid var(--skin-sidebar-border) !important;
+  border-radius: 10px !important;
+  backdrop-filter: blur(1.5px) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home #thread-bottom-container,
+body.skin-platform-chatgpt.skin-view-home #thread-bottom-container > div,
+body.skin-platform-chatgpt.skin-view-home #thread-bottom,
+body.skin-platform-chatgpt.skin-view-home form,
+body.skin-platform-chatgpt.skin-view-home form > div,
+body.skin-platform-chatgpt.skin-view-home [data-testid="composer"],
+body.skin-platform-chatgpt.skin-view-home [data-testid="composer"] > div {
+  background: transparent !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home form textarea,
+body.skin-platform-chatgpt.skin-view-home [data-testid="composer"] textarea,
+body.skin-platform-chatgpt.skin-view-home form [contenteditable="true"],
+body.skin-platform-chatgpt.skin-view-home [data-testid="composer"] [contenteditable="true"],
+body.skin-platform-chatgpt.skin-view-home form button,
+body.skin-platform-chatgpt.skin-view-home [data-testid="composer"] button {
+  color: var(--skin-action-fg) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home footer,
+body.skin-platform-chatgpt.skin-view-home footer *,
+body.skin-platform-chatgpt.skin-view-home [class*="disclaimer"],
+body.skin-platform-chatgpt.skin-view-home [class*="disclaimer"] *,
+body.skin-platform-chatgpt.skin-view-home [class*="cookie"] {
+  color: rgba(0, 0, 0, 0.74) !important;
+}
+
+body.skin-platform-chatgpt.skin-view-home button[class*="rounded"],
+body.skin-platform-chatgpt.skin-view-home a[class*="rounded"],
+body.skin-platform-chatgpt.skin-view-home [role="button"][class*="rounded"] {
+  border-radius: 14px !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) .skin-bubble-wrap-assistant,
+body:has([data-testid^="conversation-turn"]) .skin-bubble-wrap-assistant {
+  gap: 14px !important;
+  margin-bottom: 12px !important;
 }

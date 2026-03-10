@@ -111,6 +111,10 @@
    * 새로운 메시지 처리
    */
   function processNewMessages(adapter) {
+    if (ns.updateViewState) {
+      ns.updateViewState(adapter);
+    }
+
     var messages = adapter.getMessages();
 
     for (var i = 0; i < messages.length; i++) {
@@ -192,6 +196,9 @@
   function onNavigationChange(adapter) {
     // 잠시 대기 후 다시 렌더링 (새 DOM 로딩 대기)
     setTimeout(function () {
+      if (ns.updateViewState) {
+        ns.updateViewState(adapter);
+      }
       ns.renderer.reRenderAll(adapter);
     }, 800);
   }
