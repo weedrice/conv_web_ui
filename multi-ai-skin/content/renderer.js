@@ -496,14 +496,7 @@
    * 탭 제목을 선택한 상대 캐릭터 이름으로 설정 (화면 내 대화 상대 이름 표시)
    */
   function updatePageTitle() {
-    loadSettings(function (settings, userChars) {
-      if (!settings.enabled) return;
-      var aCharInfo = getCharacterInfo(settings.assistantCharacterId, userChars, 'assistant');
-      var displayName = getLocalizedName(aCharInfo);
-      if (!displayName) return;
-      var siteName = window.location.hostname || '';
-      document.title = displayName + ' · ' + siteName;
-    });
+    // Keep original page title unchanged.
   }
 
   /**
@@ -517,7 +510,6 @@
         return;
       }
 
-      updatePageTitle();
       var messages = adapter.getMessages();
       for (var i = 0; i < messages.length; i++) {
         renderMessage(messages[i], adapter);
