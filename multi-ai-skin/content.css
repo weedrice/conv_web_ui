@@ -1,21 +1,3 @@
-﻿[data-testid^="conversation-turn-"] .skin-bubble-container + div[class*="turn-messages"],
-[data-testid^="conversation-turn"] .skin-bubble-container + div[class*="turn-messages"],
-article .skin-bubble-container + div[class*="turn-messages"] {
-  margin-top: 8px !important;
-}
-/* ============================================================
-   content.css ??AI Chat Skin 怨듭쑀 ?ㅽ???(硫붿떊? ?뚮쭏)
-   
-   李몄“ ?대?吏 湲곕컲 ?붿옄??
-   - ?댁떆?ㅽ꽩?? 醫뚯륫 ?꾨컮? + 諛앹? 諛곌꼍 踰꾨툝
-   - ?좎?: ?곗륫 ?꾨컮? + 而щ윭 諛곌꼍 踰꾨툝
-   - 源붾걫???κ렐 紐⑥꽌由? ?곸젅???щ갚
-   
-   紐⑤뱺 ?대옒?ㅻ뒗 skin- ?묐몢?щ? ?ъ슜?섏뿬 ?뚮옯???ㅽ??쇨낵 異⑸룎 諛⑹?.
-   !important ?ъ슜: ?뚮옯??CSS蹂대떎 ?곗꽑 ?곸슜 蹂댁옣.
-   ============================================================ */
-
-/* === 由ъ뀑 諛?湲곕낯 === */
 .skin-bubble-wrap,
 .skin-bubble-wrap * {
   box-sizing: border-box !important;
@@ -25,7 +7,7 @@ article .skin-bubble-container + div[class*="turn-messages"] {
     'Noto Sans KR', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
 }
 
-/* === ?먮낯 硫붿떆吏 ?④린湲?=== */
+
 .skin-original-hidden {
   visibility: hidden !important;
   height: 0 !important;
@@ -39,7 +21,7 @@ article .skin-bubble-container + div[class*="turn-messages"] {
   pointer-events: none !important;
 }
 
-/* === 踰꾨툝 而⑦뀒?대꼫 (媛濡?overflow 諛⑹?, GPT ??梨꾪똿 ?곸뿭 ???섎졃) === */
+
 .skin-bubble-container {
   width: 100% !important;
   max-width: 100% !important;
@@ -47,8 +29,7 @@ article .skin-bubble-container + div[class*="turn-messages"] {
   min-width: 0 !important;
 }
 
-/* === ChatGPT ??怨좎젙: conversation turn 蹂몃Ц ???대?濡??섎졃 ===
-   renderer媛 turn/article ?ㅼ뿉 .skin-bubble-container瑜??쎌엯?섎?濡?   adjacent sibling ??됲꽣濡?ChatGPT 蹂몃Ц 理쒕???쓣 媛뺤젣?쒕떎. */
+
 [data-testid^="conversation-turn-"] + .skin-bubble-container,
 [data-testid^="conversation-turn"] + .skin-bubble-container,
 article + .skin-bubble-container {
@@ -58,7 +39,7 @@ article + .skin-bubble-container {
   margin-right: auto !important;
 }
 
-/* ChatGPT turn ?대?媛 flex-row/wrap?????≪뀡 諛붿? 媛濡?諛곗튂?섏? ?딅룄濡?   ?ㅽ궓 而⑦뀒?대꼫媛 ??以??꾩껜瑜??먯쑀?섍쾶 媛뺤젣?쒕떎. */
+
 [data-testid^="conversation-turn-"] .skin-bubble-container,
 [data-testid^="conversation-turn"] .skin-bubble-container,
 article .skin-bubble-container {
@@ -69,14 +50,14 @@ article .skin-bubble-container {
   min-width: 0 !important;
 }
 
-/* ChatGPT action area spacing under skin bubbles */
+
 [data-testid^="conversation-turn-"] .skin-bubble-container + div[class*="turn-messages"],
 [data-testid^="conversation-turn"] .skin-bubble-container + div[class*="turn-messages"],
 article .skin-bubble-container + div[class*="turn-messages"] {
   margin-top: 8px !important;
 }
 
-/* ChatGPT?먯꽌留??섑띁 醫뚯슦 ?⑤뵫??以꾩뿬 蹂몃Ц 媛濡쒗룺 ?ㅻ쾭?덊똿 諛⑹? */
+
 [data-testid^="conversation-turn-"] + .skin-bubble-container .skin-bubble-wrap,
 [data-testid^="conversation-turn"] + .skin-bubble-container .skin-bubble-wrap,
 article + .skin-bubble-container .skin-bubble-wrap {
@@ -84,7 +65,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   padding-right: 0 !important;
 }
 
-/* === 踰꾨툝 ?섑띁 (?꾨컮? + 肄섑뀗痢?而щ읆) === */
+
 .skin-bubble-wrap {
   display: flex !important;
   align-items: flex-start !important;
@@ -99,7 +80,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   overflow: visible !important;
   position: relative !important;
   z-index: 1 !important;
-  /* Grid ?덉씠?꾩썐 ?명솚 */
+  
   grid-column: 1 / -1 !important;
   clip: auto !important;
   clip-path: none !important;
@@ -108,19 +89,19 @@ article + .skin-bubble-container .skin-bubble-wrap {
   clear: both !important;
 }
 
-/* ?댁떆?ㅽ꽩??踰꾨툝: 醫뚯륫 ?뺣젹 */
+
 .skin-bubble-wrap-assistant {
   flex-direction: row !important;
   justify-content: flex-start !important;
 }
 
-/* ?좎? 踰꾨툝: ?곗륫 ?뺣젹 */
+
 .skin-bubble-wrap-user {
   flex-direction: row-reverse !important;
   justify-content: flex-start !important;
 }
 
-/* === ?섏씠?쒖씤 ?좊땲硫붿씠??=== */
+
 .skin-fade-in {
   animation: skin-fade-in-up 0.25s ease-out both;
 }
@@ -136,7 +117,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   }
 }
 
-/* === ?꾨컮? (?꾨줈???대?吏 2諛??ш린) === */
+
 .skin-avatar {
   width: 72px !important;
   height: 72px !important;
@@ -155,7 +136,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   opacity: 1 !important;
 }
 
-/* === 肄섑뀗痢?而щ읆 === */
+
 .skin-content-col {
   display: flex !important;
   flex-direction: column !important;
@@ -168,7 +149,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   align-items: flex-end !important;
 }
 
-/* === 罹먮┃???대쫫 === */
+
 .skin-char-name {
   font-size: 11px !important;
   font-weight: 600 !important;
@@ -194,7 +175,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   margin-right: 4px !important;
 }
 
-/* === ?댁떆?ㅽ꽩??踰꾨툝 === */
+
 .skin-bubble {
   background: #f0f2f5 !important;
   border-radius: 4px 16px 16px 16px !important;
@@ -214,7 +195,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   overflow: visible !important;
 }
 
-/* 踰꾨툝 ??肄붾뱶釉붾줉 */
+
 .skin-bubble pre {
   background: #1e1e2e !important;
   color: #cdd6f4 !important;
@@ -245,7 +226,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   color: #d63384 !important;
 }
 
-/* 踰꾨툝 ???뚯씠釉?*/
+
 .skin-bubble table {
   border-collapse: collapse !important;
   width: 100% !important;
@@ -270,7 +251,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   background: #fafafa !important;
 }
 
-/* 踰꾨툝 ??由ъ뒪??*/
+
 .skin-bubble ul,
 .skin-bubble ol {
   padding-left: 18px !important;
@@ -282,7 +263,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   padding: 0 !important;
 }
 
-/* 踰꾨툝 ??留곹겕 */
+
 .skin-bubble a {
   color: #4A9EFF !important;
   text-decoration: none !important;
@@ -292,7 +273,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   text-decoration: underline !important;
 }
 
-/* 踰꾨툝 ??blockquote */
+
 .skin-bubble blockquote {
   border-left: 3px solid #4A9EFF !important;
   padding-left: 10px !important;
@@ -301,7 +282,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   font-style: italic !important;
 }
 
-/* 踰꾨툝 ??heading */
+
 .skin-bubble h1,
 .skin-bubble h2,
 .skin-bubble h3,
@@ -321,27 +302,27 @@ article + .skin-bubble-container .skin-bubble-wrap {
 .skin-bubble h5,
 .skin-bubble h6 { font-size: 1em !important; }
 
-/* 踰꾨툝 ??p ?쒓렇 */
+
 .skin-bubble p {
   margin: 3px 0 !important;
   padding: 0 !important;
 }
 
-/* 踰꾨툝 ???대?吏 */
+
 .skin-bubble img {
   max-width: 100% !important;
   border-radius: 6px !important;
   margin: 6px 0 !important;
 }
 
-/* 踰꾨툝 ??援щ텇??*/
+
 .skin-bubble hr {
   border: none !important;
   border-top: 1px solid #e0e0e0 !important;
   margin: 8px 0 !important;
 }
 
-/* === ?좎? 踰꾨툝 === */
+
 .skin-bubble-user {
   background: #d4edda !important;
   border-radius: 16px 4px 16px 16px !important;
@@ -358,7 +339,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   color: #c7254e !important;
 }
 
-/* === ??댄븨 ?몃뵒耳?댄꽣 === */
+
 .skin-typing {
   display: flex !important;
   align-items: center !important;
@@ -395,7 +376,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   }
 }
 
-/* === 諛섏쓳??=== */
+
 @media screen and (max-width: 768px) {
   .skin-content-col {
     max-width: 80% !important;
@@ -421,101 +402,7 @@ article + .skin-bubble-container .skin-bubble-wrap {
   }
 }
 
-/* === ?ㅽ겕紐⑤뱶 媛먯? === */
-@media (prefers-color-scheme: dark) {
-  .skin-bubble {
-    background: #2a2a3c !important;
-    color: #e0e0e0 !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
-  }
 
-  .skin-bubble code {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: #ff8ab5 !important;
-  }
-
-  .skin-bubble th {
-    background: #333348 !important;
-    color: #e0e0e0 !important;
-  }
-
-  .skin-bubble td {
-    border-color: #444 !important;
-  }
-
-  .skin-bubble tr:nth-child(even) td {
-    background: #2f2f42 !important;
-  }
-
-  .skin-bubble blockquote {
-    color: #aaa !important;
-  }
-
-  .skin-bubble-user {
-    background: #3d5a47 !important;
-    color: #e0e0e0 !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
-  }
-
-  .skin-char-name {
-    color: #aaa !important;
-  }
-
-  .skin-avatar {
-    border-color: rgba(255, 255, 255, 0.2) !important;
-  }
-}
-
-/* ChatGPT dark ?대옒??/ Claude data-mode="dark" 湲곕컲 ?ㅽ겕紐⑤뱶 */
-.dark .skin-bubble,
-html[class*="dark"] .skin-bubble,
-html[data-mode="dark"] .skin-bubble {
-  background: #2a2a3c !important;
-  color: #e0e0e0 !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
-}
-
-html[class*="dark"] .skin-bubble code,
-.dark .skin-bubble code,
-html[data-mode="dark"] .skin-bubble code {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: #ff8ab5 !important;
-}
-
-html[class*="dark"] .skin-bubble th,
-.dark .skin-bubble th,
-html[data-mode="dark"] .skin-bubble th {
-  background: #333348 !important;
-  color: #e0e0e0 !important;
-}
-
-html[class*="dark"] .skin-bubble td,
-.dark .skin-bubble td,
-html[data-mode="dark"] .skin-bubble td {
-  border-color: #444 !important;
-}
-
-html[class*="dark"] .skin-bubble-user,
-.dark .skin-bubble-user,
-html[data-mode="dark"] .skin-bubble-user {
-  background: #3d5a47 !important;
-  color: #e0e0e0 !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
-}
-
-html[class*="dark"] .skin-char-name,
-.dark .skin-char-name,
-html[data-mode="dark"] .skin-char-name {
-  color: #aaa !important;
-}
-
-html[class*="dark"] .skin-avatar,
-.dark .skin-avatar,
-html[data-mode="dark"] .skin-avatar {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-/* === ?ㅽ겕濡ㅻ컮 (踰꾨툝 ??肄붾뱶釉붾줉) === */
 .skin-bubble pre::-webkit-scrollbar {
   height: 5px;
 }
@@ -533,7 +420,7 @@ html[data-mode="dark"] .skin-avatar {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Gemini user turns: compact vertical rhythm to reduce perceived row height */
+
 user-query .skin-bubble-wrap-user {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
@@ -549,16 +436,256 @@ user-query .skin-bubble-wrap-user .skin-avatar {
   max-height: 56px !important;
 }
 
-/* Gemini assistant: hide native avatar/logo while skin is active (including streaming phase). */
+
 model-response[data-skin-processed="true"] .avatar-gutter,
 model-response[data-skin-processed="true"] .presented-response-container .avatar-gutter {
   display: none !important;
   visibility: hidden !important;
 }
 
-/* Claude user card shell: keep layout/hover, but remove native dark background behind skin bubble */
+
 div[class*="bg-bg-"]:has([data-testid="user-message"][data-skin-processed="true"]) {
   background: transparent !important;
   box-shadow: none !important;
   border-color: transparent !important;
+}
+
+
+.skin-content-col {
+  max-width: 78% !important;
+}
+
+.skin-char-name {
+  color: rgba(137, 142, 149, 1) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  margin-bottom: 4px !important;
+}
+
+.skin-bubble {
+  background: rgba(255, 255, 255, 1) !important;
+  color: rgba(46, 51, 54, 1) !important;
+  border-radius: 14px !important;
+  padding: 12px 18px !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  position: relative !important;
+}
+
+.skin-bubble-user {
+  background: rgba(46, 51, 54, 1) !important;
+  color: rgba(255, 255, 255, 1) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 8px rgba(15, 20, 30, 0.25) !important;
+}
+
+.skin-bubble-wrap-assistant .skin-bubble::before {
+  content: '' !important;
+  position: absolute !important;
+  left: -8px !important;
+  top: 12px !important;
+  width: 14px !important;
+  height: 14px !important;
+  background: rgba(255, 255, 255, 1) !important;
+  border-radius: 3px !important;
+  transform: rotate(45deg) !important;
+}
+
+.skin-bubble-wrap-user .skin-bubble-user::before {
+  content: '' !important;
+  position: absolute !important;
+  right: -8px !important;
+  top: 12px !important;
+  width: 14px !important;
+  height: 14px !important;
+  background: rgba(46, 51, 54, 1) !important;
+  border-radius: 3px !important;
+  transform: rotate(45deg) !important;
+}
+
+
+body:has([data-testid^="conversation-turn-"]),
+body:has([data-test-render-count]),
+body:has(model-response),
+body:has(user-query) {
+  --skin-shell-bg: rgba(223, 228, 232, 1);
+  --skin-shell-bg-soft: rgba(223, 228, 232, 1);
+  --skin-shell-header-left: rgba(223, 228, 231, 1);
+  --skin-shell-header-right: rgba(184, 189, 192, 1);
+  --skin-shell-border: #b7bec6;
+  --skin-action-fg: #4e5966;
+  --skin-action-fg-hover: #1f2834;
+  --skin-action-bg-hover: rgba(255, 255, 255, 0.75);
+  --skin-sidebar-bg: rgba(63, 69, 77, 0.95);
+  --skin-sidebar-panel: rgba(154, 161, 168, 0.38);
+  --skin-sidebar-text: rgba(238, 242, 246, 0.95);
+  --skin-sidebar-text-muted: rgba(214, 220, 226, 0.74);
+  --skin-sidebar-border: rgba(255, 255, 255, 0.58);
+}
+
+body:has([data-testid^="conversation-turn-"]),
+body:has([data-test-render-count]),
+body:has(model-response),
+body:has(user-query) {
+  background-color: var(--skin-shell-bg) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) main,
+body:has([data-testid^="conversation-turn-"]) [class*="react-scroll-to-bottom"],
+body:has([data-testid^="conversation-turn-"]) [data-testid="conversation-turn-0"]::before,
+body:has([data-test-render-count]) main,
+body:has([data-test-render-count]) [data-autoscroll-container],
+body:has(model-response) main,
+body:has(model-response) .conversation-container,
+body:has(user-query) main,
+body:has(user-query) .conversation-container {
+  background: linear-gradient(180deg, var(--skin-shell-bg-soft) 0%, var(--skin-shell-bg) 100%) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) header,
+body:has([data-testid^="conversation-turn-"]) [role="banner"],
+body:has([data-test-render-count]) header,
+body:has([data-test-render-count]) [role="banner"],
+body:has(model-response) header,
+body:has(model-response) [role="banner"],
+body:has(user-query) header,
+body:has(user-query) [role="banner"] {
+  background: linear-gradient(
+    90deg,
+    var(--skin-shell-header-left) 0%,
+    var(--skin-shell-header-left) 20%,
+    var(--skin-shell-header-right) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 1) !important;
+  border-radius: 0 !important;
+}
+
+
+body:has([data-testid^="conversation-turn-"]) #thread-bottom-container,
+body:has([data-testid^="conversation-turn-"]) #thread-bottom-container > div,
+body:has([data-testid^="conversation-turn-"]) #thread-bottom {
+  background: var(--skin-shell-bg) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) aside,
+body:has([data-test-render-count]) aside,
+body:has(model-response) aside,
+body:has(user-query) aside,
+body:has([data-testid^="conversation-turn-"]) [class*="sidebar"],
+body:has([data-test-render-count]) [class*="sidebar"],
+body:has(model-response) [class*="sidenav"],
+body:has(user-query) [class*="sidenav"] {
+  background: linear-gradient(180deg, rgba(55, 61, 68, 0.98) 0%, var(--skin-sidebar-bg) 100%) !important;
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) aside a,
+body:has([data-testid^="conversation-turn-"]) aside button,
+body:has([data-test-render-count]) aside a,
+body:has([data-test-render-count]) aside button,
+body:has(model-response) aside a,
+body:has(model-response) aside button,
+body:has(user-query) aside a,
+body:has(user-query) aside button {
+  color: var(--skin-sidebar-text) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) aside li,
+body:has([data-testid^="conversation-turn-"]) aside [role="listitem"],
+body:has([data-testid^="conversation-turn-"]) aside [data-testid*="history"],
+body:has([data-testid^="conversation-turn-"]) aside [data-testid*="conversation"],
+body:has([data-test-render-count]) aside li,
+body:has([data-test-render-count]) aside [role="listitem"],
+body:has(model-response) aside li,
+body:has(model-response) aside [role="listitem"],
+body:has(user-query) aside li,
+body:has(user-query) aside [role="listitem"] {
+  background: var(--skin-sidebar-panel) !important;
+  border: 1px solid var(--skin-sidebar-border) !important;
+  border-radius: 10px !important;
+  backdrop-filter: blur(1.5px) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) aside .text-token-text-secondary,
+body:has([data-testid^="conversation-turn-"]) aside [class*="secondary"],
+body:has([data-test-render-count]) aside [class*="secondary"],
+body:has(model-response) aside [class*="secondary"],
+body:has(user-query) aside [class*="secondary"] {
+  color: var(--skin-sidebar-text-muted) !important;
+}
+
+
+[data-testid="copy-turn-action-button"],
+[data-testid="good-response-turn-action-button"],
+[data-testid="bad-response-turn-action-button"],
+[data-testid="retry-button"],
+[data-testid^="conversation-turn-"] .text-token-text-secondary,
+[data-testid^="conversation-turn"] .text-token-text-secondary,
+[data-testid^="conversation-turn-"] button[aria-label*="편집"],
+[data-testid^="conversation-turn-"] button[aria-label*="공유"],
+[data-testid^="conversation-turn-"] button[aria-label*="더 많은"],
+[data-testid^="conversation-turn-"] button[aria-label*="Edit"],
+[data-testid^="conversation-turn-"] button[aria-label*="Share"],
+[data-testid^="conversation-turn-"] button[aria-label*="More"],
+[data-testid^="action-bar-"],
+[data-test-id="copy-button"],
+[data-test-id="more-menu-button"],
+[data-test-id="actions-menu-button"],
+[data-test-id="conversation-actions-menu-icon-button"],
+[data-test-id="prompt-edit-button"] {
+  color: var(--skin-action-fg) !important;
+}
+
+[data-testid^="conversation-turn-"] .text-token-text-secondary .icon,
+[data-testid^="conversation-turn"] .text-token-text-secondary .icon,
+[data-testid^="conversation-turn-"] .text-token-text-secondary svg,
+[data-testid^="conversation-turn"] .text-token-text-secondary svg {
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
+[data-testid="copy-turn-action-button"]:hover,
+[data-testid="good-response-turn-action-button"]:hover,
+[data-testid="bad-response-turn-action-button"]:hover,
+[data-testid="retry-button"]:hover,
+[data-testid^="conversation-turn-"] .text-token-text-secondary:hover,
+[data-testid^="conversation-turn"] .text-token-text-secondary:hover,
+[data-testid^="conversation-turn-"] button[aria-label*="편집"]:hover,
+[data-testid^="conversation-turn-"] button[aria-label*="공유"]:hover,
+[data-testid^="conversation-turn-"] button[aria-label*="더 많은 액션"]:hover,
+[data-testid^="conversation-turn-"] button[aria-label*="Edit"]:hover,
+[data-testid^="conversation-turn-"] button[aria-label*="Share"]:hover,
+[data-testid^="conversation-turn-"] button[aria-label*="More"]:hover,
+[data-testid^="action-bar-"]:hover,
+[data-test-id="copy-button"]:hover,
+[data-test-id="more-menu-button"]:hover,
+[data-test-id="actions-menu-button"]:hover,
+[data-test-id="conversation-actions-menu-icon-button"]:hover,
+[data-test-id="prompt-edit-button"]:hover {
+  color: var(--skin-action-fg-hover) !important;
+  background: var(--skin-action-bg-hover) !important;
+  border-radius: 8px !important;
+}
+
+
+body:has([data-testid^="conversation-turn-"]) #page-header .text-token-text-tertiary,
+body:has([data-testid^="conversation-turn-"]) #page-header .icon-sm.text-token-text-tertiary,
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="model-switcher-dropdown-button"],
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="share-chat-button"],
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="conversation-options-button"],
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="공유"],
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Share"],
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="대화 옵션"],
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Conversation options"] {
+  color: var(--skin-action-fg) !important;
+}
+
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="model-switcher-dropdown-button"]:hover,
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="share-chat-button"]:hover,
+body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="conversation-options-button"]:hover,
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="공유"]:hover,
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Share"]:hover,
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="대화 옵션"]:hover,
+body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Conversation options"]:hover {
+  color: var(--skin-action-fg-hover) !important;
+  background: var(--skin-action-bg-hover) !important;
 }
