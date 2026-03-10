@@ -257,6 +257,32 @@
     return wrapper || msgEl;
   }
 
+  function getHideTarget(msgEl, adapter, role) {
+    if (adapter && adapter.getHideTarget) {
+      try {
+        var target = adapter.getHideTarget(msgEl, role);
+        if (target && target.classList) return target;
+      } catch (e) {}
+    }
+    return msgEl;
+  }
+
+  function hideOriginal(msgEl, adapter, role) {
+    var target = getHideTarget(msgEl, adapter, role);
+    if (target && target.classList) target.classList.add('skin-original-hidden');
+  }
+
+  function showOriginal(msgEl, adapter, role) {
+    // 기본 메시지 노드 복원
+    if (msgEl && msgEl.classList) msgEl.classList.remove('skin-original-hidden');
+
+    // 어댑터 지정 숨김 노드 복원
+    var target = getHideTarget(msgEl, adapter, role);
+    if (target && target !== msgEl && target.classList) {
+      target.classList.remove('skin-original-hidden');
+    }
+  }
+
   /**
    * 특정 메시지 요소에 연결된 기존 스킨 버블들 제거
    */
@@ -335,7 +361,7 @@
     function cancelRender() {
       msgEl.removeAttribute('data-skin-processed');
       msgEl.removeAttribute('data-skin-id');
-      msgEl.classList.remove('skin-original-hidden');
+      showOriginal(msgEl, adapter, role);
     }
 
     loadSettings(function (settings, userChars) {
@@ -355,15 +381,23 @@
       // 래퍼 요소 결정 (삽입 위치 계산용)
       var wrapper = adapter.getMessageWrapper ? adapter.getMessageWrapper(msgEl) : msgEl;
 
-      // 삽입 기준점: 래퍼 요소 바로 뒤
-      // ChatGPT: article 바로 뒤 (article과 같은 레벨)
-      // Claude: 턴 컨테이너 바로 뒤
-      var insertPoint = wrapper.nextSibling;
-      var insertParent = wrapper.parentNode;
-
       if (role === 'assistant') {
         var aCharInfo = getCharacterInfo(settings.assistantCharacterId, userChars, 'assistant');
         var aDisplayName = getLocalizedName(aCharInfo);
+        var insertPoint = wrapper.nextSibling;
+        var insertParent = wrapper.parentNode;
+
+        // Gemini: 액션 영역이 버블 위에 보이는 문제를 막기 위해
+        // 버블을 action area 앞에 삽입해 액션이 버블 아래로 오도록 정렬한다.
+        if (adapter && adapter.name === 'gemini' && adapter.getActionArea) {
+          try {
+            var actionArea = adapter.getActionArea(msgEl);
+            if (actionArea && actionArea.parentNode) {
+              insertParent = actionArea.parentNode;
+              insertPoint = actionArea;
+            }
+          } catch (e0) {}
+        }
 
         if (isStreaming) {
           // Gemini는 콘텐츠 없는 placeholder model-response가 남는 경우가 있어
@@ -385,7 +419,7 @@
           }
 
           // 원본 메시지 요소만 숨기기 (액션 버튼은 유지)
-          msgEl.classList.add('skin-original-hidden');
+          hideOriginal(msgEl, adapter, role);
 
           var typingBubble = createTypingBubble(aCharInfo, aDisplayName);
           typingBubble.setAttribute('data-skin-source', skinId);
@@ -409,7 +443,7 @@
           }
 
           // 원본 메시지 요소만 숨기기 (액션 버튼은 유지)
-          msgEl.classList.add('skin-original-hidden');
+          hideOriginal(msgEl, adapter, role);
 
           for (var bc = 0; bc < bubbleChildren.length; bc++) {
             bubbleChildren[bc].setAttribute('data-skin-source', skinId);
@@ -425,6 +459,8 @@
         var uCharInfo = getCharacterInfo(settings.userCharacterId, userChars, 'user');
         var uDisplayName = getLocalizedName(uCharInfo);
         var textContent = adapter.getTextContent(msgEl);
+        var userInsertPoint = wrapper.nextSibling;
+        var userInsertParent = wrapper.parentNode;
 
         if (!textContent || !String(textContent).trim()) {
           cancelRender();
@@ -432,14 +468,14 @@
         }
 
         // 원본 메시지 요소만 숨기기 (액션 버튼은 유지)
-        msgEl.classList.add('skin-original-hidden');
+        hideOriginal(msgEl, adapter, role);
 
         var userBubble = createUserBubble(textContent, uCharInfo, uDisplayName);
         userBubble.setAttribute('data-skin-source', skinId);
         var wrap = document.createElement('div');
         wrap.className = 'skin-bubble-container';
         wrap.appendChild(userBubble);
-        insertParent.insertBefore(wrap, insertPoint);
+        userInsertParent.insertBefore(wrap, userInsertPoint);
       }
     });
   }

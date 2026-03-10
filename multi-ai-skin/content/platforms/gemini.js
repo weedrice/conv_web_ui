@@ -66,11 +66,27 @@
     return document.querySelectorAll('model-response');
   }
 
-  function sanitizeText(text) {
-    return (text || '')
-      .replace(/\u00a0/g, ' ')
-      .replace(/^말씀하신 내용\s*/g, '')
-      .trim();
+  function getAssistantActionArea(assistantTurn) {
+    if (!assistantTurn) return null;
+
+    return assistantTurn.querySelector(
+      'message-actions, [data-test-id="copy-button"], [data-test-id="more-menu-button"], [data-test-id="actions-menu-button"], [data-test-id="conversation-actions-menu-icon-button"]'
+    );
+  }
+
+  function isGeminiActionAreaElement(el) {
+    if (!el) return false;
+
+    if (el.tagName && el.tagName.toLowerCase() === 'message-actions') return true;
+    if (el.closest && el.closest('message-actions')) return true;
+
+    var testId = (el.getAttribute && (el.getAttribute('data-test-id') || el.getAttribute('data-testid'))) || '';
+    if (/copy-button|more-menu-button|actions-menu|conversation-actions/i.test(testId)) return true;
+
+    var className = String(el.className || '');
+    if (/actions?-menu|menu-button|icon-button/.test(className)) return true;
+
+    return false;
   }
 
   function getAssistantContentNode(el) {
@@ -176,6 +192,10 @@
 
   function getAssistantCleanText(assistantTurn) {
     if (!assistantTurn) return '';
+
+    if (getAssistantActionArea(assistantTurn) && !getAssistantContentNode(assistantTurn)) {
+      return '';
+    }
 
     var contentNode = getAssistantContentNode(assistantTurn);
     if (contentNode) {
@@ -329,6 +349,32 @@
       if (assistantTurn) return assistantTurn;
 
       return el;
+    },
+
+    // 원본 숨김 대상을 본문으로 제한해 하단 액션 영역은 그대로 노출
+    getHideTarget: function (el, role) {
+      if (role === 'assistant') {
+        var assistantTurn = toAssistantTurn(el) || el;
+        return getAssistantContentNode(assistantTurn) || assistantTurn;
+      }
+
+      if (role === 'user') {
+        var userTurn = toUserTurn(el) || el;
+        return getUserContentNode(userTurn) || userTurn;
+      }
+
+      return el;
+    },
+
+    // 디버깅/후처리를 위해 액션 영역을 메시지 본문과 분리 조회
+    getActionArea: function (el) {
+      var assistantTurn = toAssistantTurn(el);
+      if (!assistantTurn) return null;
+      return getAssistantActionArea(assistantTurn);
+    },
+
+    isActionAreaElement: function (el) {
+      return isGeminiActionAreaElement(el);
     }
   };
 })();
