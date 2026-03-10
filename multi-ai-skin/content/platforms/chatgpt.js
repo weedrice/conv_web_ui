@@ -1,19 +1,61 @@
-﻿/**
- * chatgpt.js ??ChatGPT DOM ?대뙌?? *
- * reference/gpt/*.html 湲곗?: data-message-author-role, article, group/turn-messages.
- * getMessages: [data-message-author-role="user|assistant"]
+/**
+ * chatgpt.js - ChatGPT DOM adapter
+ *
+ * Reference snapshot:
+ * - conversation turn: [data-testid^="conversation-turn-"] (or article turn wrappers)
+ * - message nodes: [data-message-author-role="user|assistant"]
  */
 (function () {
   'use strict';
 
   var ns = (window.AIChatSkin = window.AIChatSkin || {});
   ns.platforms = ns.platforms || {};
+  var DEBUG_MAX_LOG = 20;
+  var debugCount = 0;
+
+  function debugLog(label, payload) {
+    if (debugCount >= DEBUG_MAX_LOG) return;
+    debugCount += 1;
+    try {
+      console.log('[AIChatSkin][GPT-Debug]', label, payload);
+    } catch (e) {}
+  }
 
   function getTurnContainer(el) {
     return el.closest('[data-testid^="conversation-turn-"]') ||
            el.closest('[data-testid^="conversation-turn"]') ||
            el.closest('article') ||
            el;
+  }
+
+  function isValidTurnContainer(turn) {
+    if (!turn || !turn.matches) return false;
+
+    // Exclude composer/input region.
+    if (turn.closest && turn.closest('[data-testid="composer"], form[aria-label*="message"], form[aria-label*="Message"]')) {
+      return false;
+    }
+
+    if (turn.matches('[data-testid^="conversation-turn-"], [data-testid^="conversation-turn"]')) {
+      return true;
+    }
+    if (turn.matches('article[data-turn-id], article[data-turn]')) {
+      return true;
+    }
+    return false;
+  }
+
+  function getValidTurnContainer(el) {
+    var turn = getTurnContainer(el);
+    if (!isValidTurnContainer(turn)) {
+      debugLog('invalid_turn_container', {
+        tag: turn && turn.tagName,
+        className: turn && turn.className ? String(turn.className).slice(0, 220) : '',
+        dataTestid: turn && turn.getAttribute ? turn.getAttribute('data-testid') : null,
+        dataTurnId: turn && turn.getAttribute ? turn.getAttribute('data-turn-id') : null
+      });
+    }
+    return isValidTurnContainer(turn) ? turn : null;
   }
 
   function shouldIgnoreElement(el) {
@@ -23,41 +65,63 @@
   }
 
   function getChatGPTActionArea(el) {
-    var turn = getTurnContainer(el);
-    if (!turn || !turn.querySelector) return null;
-    var actionBtn = turn.querySelector(
-      '[data-testid="copy-turn-action-button"], [data-testid="good-response-turn-action-button"], [data-testid="bad-response-turn-action-button"], [data-testid="retry-button"]'
-    );
-    if (!actionBtn) return null;
-    var actionNode = actionBtn.closest('div[class*="turn-messages"]') || actionBtn.parentElement || actionBtn;
-
-    // Expand to the outer "actions-only" wrapper inside this turn so the renderer
-    // inserts skin bubbles in the same vertical stack as normal messages.
-    var current = actionNode;
-    while (current && current.parentElement && current.parentElement !== turn) {
-      var parent = current.parentElement;
-      if (parent.querySelector && parent.querySelector('[data-message-author-role]')) {
-        break;
-      }
-      current = parent;
+    var turn = getValidTurnContainer(el);
+    if (!turn || !turn.querySelector) {
+      debugLog('action_area_no_turn', {
+        role: el && el.getAttribute ? el.getAttribute('data-message-author-role') : null,
+        messageId: el && el.getAttribute ? el.getAttribute('data-message-id') : null,
+        outerHTML: el && el.outerHTML ? el.outerHTML.slice(0, 500) : ''
+      });
+      return null;
     }
 
-    return current || actionNode;
+    var actionSelector =
+      '[data-testid="copy-turn-action-button"], [data-testid="good-response-turn-action-button"], [data-testid="bad-response-turn-action-button"], [data-testid="retry-button"]';
+
+    // Prefer the nearest sibling block after the message node that contains action buttons.
+    // This keeps insertion in the same vertical flow as normal message blocks.
+    var messageNode = el.closest('[data-message-author-role]') || el;
+    var cursor = messageNode;
+    while (cursor && cursor !== turn) {
+      var sibling = cursor.nextElementSibling;
+      while (sibling) {
+        if (sibling.matches && sibling.matches('.skin-bubble-container')) {
+          sibling = sibling.nextElementSibling;
+          continue;
+        }
+        if (sibling.querySelector && sibling.querySelector(actionSelector)) {
+          return sibling;
+        }
+        sibling = sibling.nextElementSibling;
+      }
+      cursor = cursor.parentElement;
+    }
+
+    // Fallback: derive from first action button.
+    var actionBtn = turn.querySelector(actionSelector);
+    if (!actionBtn) {
+      debugLog('action_button_not_found', {
+        turnTestid: turn.getAttribute && turn.getAttribute('data-testid'),
+        turnId: turn.getAttribute && (turn.getAttribute('data-turn-id') || turn.getAttribute('data-turn')),
+        turnClass: turn.className ? String(turn.className).slice(0, 220) : ''
+      });
+      return null;
+    }
+    return actionBtn.closest('div[class*="turn-messages"]') || actionBtn.parentElement || actionBtn;
+  }
+
+  function getChatGPTMessageWrapper(el) {
+    if (!el) return null;
+    return el.closest('[data-message-author-role]') || el;
   }
 
   ns.platforms.chatgpt = {
     name: 'chatgpt',
 
-    /**
-     * ?꾩옱 ?몄뒪?몃챸??ChatGPT?몄? ?뺤씤
-     */
     matches: function (hostname) {
       return hostname === 'chatgpt.com' || hostname === 'www.chatgpt.com';
     },
 
-    /**
-     * ?꾩옱 DOM???덈뒗 紐⑤뱺 硫붿떆吏 ?붿냼 諛섑솚
-     */
     getMessages: function () {
       var candidates = document.querySelectorAll(
         '[data-message-author-role="user"], [data-message-author-role="assistant"]'
@@ -69,9 +133,24 @@
         var el = candidates[i];
         if (shouldIgnoreElement(el)) continue;
 
+        // Skip composer/input area nodes.
+        if (el.closest && el.closest('[data-testid="composer"], form[aria-label*="message"], form[aria-label*="Message"]')) continue;
+
+        // Process only real turn messages to prevent typing bubbles from being
+        // attached to bottom fixed UI during streaming.
+        if (!getValidTurnContainer(el)) {
+          debugLog('skip_message_outside_turn', {
+            role: el.getAttribute('data-message-author-role'),
+            messageId: el.getAttribute('data-message-id'),
+            className: el.className ? String(el.className).slice(0, 220) : '',
+            outerHTML: el.outerHTML ? el.outerHTML.slice(0, 500) : ''
+          });
+          continue;
+        }
+
         var key = el.getAttribute('data-message-id');
         if (!key) {
-          // data-message-id媛 ?녿뒗 寃쎌슦?먮룄 以묐났 ?쎌엯 諛⑹?
+          // Fallback key to avoid duplicate insertion.
           var role = el.getAttribute('data-message-author-role') || 'unknown';
           key = role + '::' + (el.textContent || '').slice(0, 60) + '::' + i;
         }
@@ -83,9 +162,6 @@
       return result;
     },
 
-    /**
-     * 硫붿떆吏 ?붿냼????븷(user/assistant) 諛섑솚
-     */
     getRole: function (el) {
       var role = el.getAttribute('data-message-author-role');
       if (role === 'user') return 'user';
@@ -93,81 +169,58 @@
       return null;
     },
 
-    /**
-     * 硫붿떆吏 ?붿냼媛 ?ㅽ듃由щ컢 以묒씤吏 ?뺤씤
-     * ?ㅼ젣 ?ㅽ듃由щ컢 ?몃뵒耳?댄꽣媛 DOM??議댁옱?섎뒗 寃쎌슦?먮쭔 true 諛섑솚.
-     * 二쇱쓽: ?띿꽦 遺?щ쭔?쇰줈 streaming?대씪 ?먮떒?섎㈃ ????(?꾨즺??硫붿떆吏???대떦 ?띿꽦???놁쓣 ???덉쓬)
-     */
     isStreaming: function (el) {
       try {
         var messageEl = el.closest('[data-message-id]') || el;
         var article = getTurnContainer(el);
 
-        // ?뺤떎???꾨즺??寃쎌슦
         if (messageEl.hasAttribute('data-message-finished')) {
           return false;
         }
 
-        // ?꾩꽦 硫붿떆吏 ?≪뀡 踰꾪듉???덉쑝硫??ㅽ듃由щ컢 醫낅즺濡??먮떒
+        // If turn actions are visible, generation is usually complete.
         var searchRoot = article || messageEl;
         var hasTurnActions = searchRoot.querySelector(
           '[data-testid="copy-turn-action-button"], [data-testid="good-response-turn-action-button"], [data-testid="bad-response-turn-action-button"]'
         );
         if (hasTurnActions) return false;
 
-        // ?띿꽦 湲곕컲 ?좏샇
         if (searchRoot.querySelector('[data-is-streaming="true"], [aria-busy="true"]')) return true;
-
-        // ?ㅼ젣 ?ㅽ듃由щ컢 ?몃뵒耳?댄꽣 ?대옒???뺤씤
         if (searchRoot.querySelector('.result-streaming')) return true;
         if (searchRoot.querySelector('.agent-turn-loading')) return true;
 
-        // streaming 愿??CSS ?대옒?ㅺ? ?덈뒗 ?붿냼 ?뺤씤
         var streamingEls = searchRoot.querySelectorAll('[class*="streaming"]');
         for (var i = 0; i < streamingEls.length; i++) {
           var className = String(streamingEls[i].className || '');
-          // skin- ?묐몢?щ뒗 ?곕━ 寃껋씠誘濡??쒖쇅
           if (className.indexOf('skin-') === -1) return true;
         }
 
-        // 而ㅼ꽌 源쒕컯???붿냼 ?뺤씤 (?ㅽ듃由щ컢 以??쒖떆?섎뒗 而ㅼ꽌)
         if (searchRoot.querySelector('.cursor, [class*="cursor-blink"]')) return true;
-
       } catch (e) {
         console.warn('[AIChatSkin] ChatGPT isStreaming error:', e);
       }
 
-      // 湲곕낯媛? ?ㅽ듃由щ컢 ?꾨떂 (?꾨즺??硫붿떆吏瑜?streaming?쇰줈 ?ㅽ뙋?섏? ?딄린 ?꾪빐)
       return false;
     },
 
-    /**
-     * 硫붿떆吏 ?붿냼?먯꽌 ?쒖닔 ?띿뒪??異붿텧
-     */
     getTextContent: function (el) {
-      // ChatGPT??硫붿떆吏 ?댁슜? .markdown ?대옒???대????덉쓬 (?댁떆?ㅽ꽩??
       var markdown = el.querySelector('.markdown');
       if (markdown) {
         return markdown.textContent || '';
       }
-      // ?좎? 硫붿떆吏: .whitespace-pre-wrap ?먮뒗 吏곸젒 ?띿뒪??      var preWrap = el.querySelector('.whitespace-pre-wrap, [class*="whitespace"]');
+
+      var preWrap = el.querySelector('.whitespace-pre-wrap, [class*="whitespace"]');
       if (preWrap) {
         return preWrap.textContent || '';
       }
       return el.textContent || '';
     },
 
-    /**
-     * 硫붿떆吏 ?붿냼?먯꽌 ?뚮뜑留곷맂 HTML 異붿텧 (肄붾뱶釉붾줉, ?뚯씠釉?蹂댁〈)
-     */
     getInnerHTML: function (el) {
-      // ChatGPT??硫붿떆吏 ?댁슜? .markdown ?대옒???대????덉쓬
       var markdown = el.querySelector('.markdown');
       if (markdown) {
-        // 留덊겕?ㅼ슫 ?대???蹂듭궗 踰꾪듉 ??UI ?붿냼 ?쒖쇅?섏뿬 ?대줎 ?앹꽦 ??異붿텧
         var clone = markdown.cloneNode(true);
-        // 蹂듭궗 踰꾪듉, ?≪뀡 留곹겕 ???쒓굅
-        clone.querySelectorAll('button, [class*="copy"], [class*="action"]').forEach(function(btn) {
+        clone.querySelectorAll('button, [class*="copy"], [class*="action"]').forEach(function (btn) {
           btn.remove();
         });
         return clone.innerHTML;
@@ -175,11 +228,7 @@
       return el.innerHTML;
     },
 
-    /**
-     * ???而⑦뀒?대꼫 ?붿냼 諛섑솚 (MutationObserver ???
-     */
     getConversationContainer: function () {
-      // ChatGPT??????곸뿭
       var firstTurn = document.querySelector('[data-testid^="conversation-turn-"], [data-testid^="conversation-turn"]');
       if (firstTurn && firstTurn.parentElement) return firstTurn.parentElement;
 
@@ -188,14 +237,9 @@
              document.body;
     },
 
-    /**
-     * 硫붿떆吏???섑띁 ?붿냼 諛섑솚 (踰꾨툝 ?쎌엯 ?꾩튂 寃곗젙??
-     */
     getMessageWrapper: function (el) {
-      // ??ChatGPT DOM: article > div > div > div[data-message-author-role]
-      // 踰꾨툝??article怨?媛숈? ?덈꺼???쎌엯?섎룄濡?article??諛섑솚
-      var turn = getTurnContainer(el);
-      if (turn) return turn;
+      var wrapper = getChatGPTMessageWrapper(el);
+      if (wrapper) return wrapper;
       return el;
     },
 
@@ -203,6 +247,4 @@
       return getChatGPTActionArea(el);
     }
   };
-
 })();
-
