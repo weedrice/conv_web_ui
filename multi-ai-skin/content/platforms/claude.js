@@ -57,6 +57,19 @@
     return text.length > 0 ? user : null;
   }
 
+  function getUserBodyNode(el) {
+    if (!el) return null;
+
+    if (hasSelector(el, '.font-user-message, div[class*="font-user-message"]')) {
+      return el;
+    }
+
+    var userRoot = hasSelector(el, USER_SELECTORS) ? el : getFirstNonSkinBySelector(el, USER_SELECTORS);
+    if (!userRoot) return null;
+
+    return getFirstNonSkinBySelector(userRoot, '.font-user-message, div[class*="font-user-message"]') || userRoot;
+  }
+
   function getAssistantMessageFromTurn(turnEl) {
     for (var i = 0; i < ASSISTANT_BODY_SELECTORS.length; i++) {
       var selector = ASSISTANT_BODY_SELECTORS[i];
@@ -144,6 +157,49 @@
     return el && el.closest ? el.closest(selector) : null;
   }
 
+  function getAssistantBodyNode(el) {
+    if (!el) return null;
+    return hasSelector(el, '.standard-markdown, .progressive-markdown, .font-claude-response, div[class*="font-claude-response"]')
+      ? el
+      : getFirstNonSkinBySelector(el, '.standard-markdown, .progressive-markdown, .font-claude-response, div[class*="font-claude-response"]');
+  }
+
+  function getClaudeUserBubbleShell(el) {
+    var userRoot = hasSelector(el, '[data-testid="user-message"]')
+      ? el
+      : closestSelector(el, '[data-testid="user-message"]');
+
+    if (!userRoot) {
+      var turn = closestSelector(el, '[data-test-render-count]') || closestSelector(el, '.group') || el;
+      userRoot = getFirstNonSkinBySelector(turn, '[data-testid="user-message"]');
+    }
+    if (!userRoot) return null;
+
+    var turnRoot = closestSelector(userRoot, '[data-test-render-count]') || closestSelector(userRoot, '.group');
+    var node = userRoot;
+
+    while (node && node !== turnRoot && node.parentElement) {
+      var cls = typeof node.className === 'string' ? node.className : '';
+      // Claude user bubble visual shell:
+      // e.g. "inline-flex ... bg-bg-300 rounded-xl ...".
+      if (/\bbg-bg-\d+\b/.test(cls) && /\brounded/.test(cls)) {
+        return node;
+      }
+      node = node.parentElement;
+    }
+
+    return userRoot;
+  }
+
+  function getClaudeActionArea(el) {
+    var turn = closestSelector(el, '[data-test-render-count]') || closestSelector(el, '.group') || el;
+    if (!turn || !turn.querySelector) return null;
+
+    return turn.querySelector(
+      '[role="group"][aria-label*="Message"], [role="group"][aria-label*="message"], [data-testid^="action-bar"], [data-testid="action-bar-copy"], [data-testid="action-bar-retry"]'
+    );
+  }
+
   ns.platforms.claude = {
     name: 'claude',
 
@@ -223,7 +279,7 @@
         if (user) return user.textContent || '';
       }
 
-      var body = getFirstNonSkinBySelector(el, '.standard-markdown, .progressive-markdown, .font-claude-response, div[class*="font-claude-response"]');
+      var body = getAssistantBodyNode(el);
       if (body) return body.textContent || '';
 
       return el.textContent || '';
@@ -273,6 +329,29 @@
       if (group) return group;
 
       return el;
+    },
+
+    // 원본 숨김 대상을 본문 노드로 제한해 액션 영역/클로드 마크는 그대로 유지
+    getHideTarget: function (el, role) {
+      if (role === 'assistant') {
+        var turn = closestSelector(el, '[data-test-render-count]') || closestSelector(el, '.group') || el;
+        return getAssistantBodyNode(turn) || turn;
+      }
+
+      if (role === 'user') {
+        var userShell = getClaudeUserBubbleShell(el);
+        if (userShell) return userShell;
+
+        var userBody = getUserBodyNode(el);
+        return userBody || el;
+      }
+
+      return el;
+    },
+
+    // 액션 영역을 별도 분리해 버블 아래에 유지할 수 있게 제공
+    getActionArea: function (el) {
+      return getClaudeActionArea(el);
     }
   };
 })();

@@ -387,9 +387,9 @@
         var insertPoint = wrapper.nextSibling;
         var insertParent = wrapper.parentNode;
 
-        // Gemini: 액션 영역이 버블 위에 보이는 문제를 막기 위해
-        // 버블을 action area 앞에 삽입해 액션이 버블 아래로 오도록 정렬한다.
-        if (adapter && adapter.name === 'gemini' && adapter.getActionArea) {
+        // 어댑터가 액션 영역을 제공하면 버블을 action area 앞에 삽입한다.
+        // (Claude/Gemini에서 액션 버튼이 버블 위에 뜨는 문제 방지)
+        if (adapter && adapter.getActionArea) {
           try {
             var actionArea = adapter.getActionArea(msgEl);
             if (actionArea && actionArea.parentNode) {
@@ -461,6 +461,18 @@
         var textContent = adapter.getTextContent(msgEl);
         var userInsertPoint = wrapper.nextSibling;
         var userInsertParent = wrapper.parentNode;
+
+        // 어댑터가 액션 영역을 제공하면 사용자 버블도 action area 앞에 삽입한다.
+        // (Claude에서 hover 기준 영역과 액션 버튼 위치가 어긋나는 문제 방지)
+        if (adapter && adapter.getActionArea) {
+          try {
+            var userActionArea = adapter.getActionArea(msgEl);
+            if (userActionArea && userActionArea.parentNode) {
+              userInsertParent = userActionArea.parentNode;
+              userInsertPoint = userActionArea;
+            }
+          } catch (e3) {}
+        }
 
         if (!textContent || !String(textContent).trim()) {
           cancelRender();
