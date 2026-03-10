@@ -126,8 +126,10 @@
       var candidates = document.querySelectorAll(
         '[data-message-author-role="user"], [data-message-author-role="assistant"]'
       );
-      var result = [];
-      var seen = {};
+      var strictResult = [];
+      var relaxedResult = [];
+      var strictSeen = {};
+      var relaxedSeen = {};
 
       for (var i = 0; i < candidates.length; i++) {
         var el = candidates[i];
@@ -136,8 +138,19 @@
         // Skip composer/input area nodes.
         if (el.closest && el.closest('[data-testid="composer"], form[aria-label*="message"], form[aria-label*="Message"]')) continue;
 
-        // Process only real turn messages to prevent typing bubbles from being
-        // attached to bottom fixed UI during streaming.
+        var key = el.getAttribute('data-message-id');
+        if (!key) {
+          // Fallback key to avoid duplicate insertion.
+          var role = el.getAttribute('data-message-author-role') || 'unknown';
+          key = role + '::' + (el.textContent || '').slice(0, 60) + '::' + i;
+        }
+
+        if (!relaxedSeen[key]) {
+          relaxedSeen[key] = true;
+          relaxedResult.push(el);
+        }
+
+        // Strict mode: real turn messages only (prevents bottom-fixed typing bubble issue).
         if (!getValidTurnContainer(el)) {
           debugLog('skip_message_outside_turn', {
             role: el.getAttribute('data-message-author-role'),
@@ -148,18 +161,18 @@
           continue;
         }
 
-        var key = el.getAttribute('data-message-id');
-        if (!key) {
-          // Fallback key to avoid duplicate insertion.
-          var role = el.getAttribute('data-message-author-role') || 'unknown';
-          key = role + '::' + (el.textContent || '').slice(0, 60) + '::' + i;
-        }
-        if (seen[key]) continue;
-        seen[key] = true;
-        result.push(el);
+        if (strictSeen[key]) continue;
+        strictSeen[key] = true;
+        strictResult.push(el);
       }
 
-      return result;
+      // Fallback to relaxed mode to avoid "no skin applied" regressions.
+      if (strictResult.length === 0 && relaxedResult.length > 0) {
+        debugLog('strict_empty_use_relaxed', { relaxedCount: relaxedResult.length });
+        return relaxedResult;
+      }
+
+      return strictResult;
     },
 
     getRole: function (el) {

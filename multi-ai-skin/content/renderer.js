@@ -1,7 +1,7 @@
 /**
- * renderer.js — 버블 렌더링 로직
+ * renderer.js ??踰꾨툝 ?뚮뜑留?濡쒖쭅
  * 
- * 원본 메시지 요소를 숨기고, 캐릭터 기반 메신저 버블 UI를 삽입한다.
+ * ?먮낯 硫붿떆吏 ?붿냼瑜??④린怨? 罹먮┃??湲곕컲 硫붿떊? 踰꾨툝 UI瑜??쎌엯?쒕떎.
  */
 (function () {
   'use strict';
@@ -10,7 +10,7 @@
   var BUILTIN_CHARACTERS = ns.BUILTIN_CHARACTERS || [];
 
   /**
-   * 설정 불러오기 (캐시 포함)
+   * ?ㅼ젙 遺덈윭?ㅺ린 (罹먯떆 ?ы븿)
    */
   var cachedSettings = null;
   var cachedUserChars = null;
@@ -32,20 +32,20 @@
             callback(settings, data.userCharacters);
           });
         } catch (e2) {
-          // Extension context invalidated — 캐시 사용
+          // Extension context invalidated ??罹먯떆 ?ъ슜
           callback(settings, cachedUserChars || []);
         }
       });
     } catch (e) {
-      // Extension context invalidated — 캐시된 설정 사용
+      // Extension context invalidated ??罹먯떆???ㅼ젙 ?ъ슜
       if (cachedSettings) {
         callback(cachedSettings, cachedUserChars || []);
       }
-      // 캐시도 없으면 조용히 종료
+      // 罹먯떆???놁쑝硫?議곗슜??醫낅즺
     }
   }
 
-  /** Chrome UI 언어 (예: 'ko', 'en') */
+  /** Chrome UI ?몄뼱 (?? 'ko', 'en') */
   function getUILanguage() {
     try {
       if (typeof chrome !== 'undefined' && chrome.i18n && chrome.i18n.getUILanguage) {
@@ -55,7 +55,7 @@
     return (navigator.language || navigator.userLanguage || 'en').split('-')[0];
   }
 
-  /** 캐릭터 표시 이름 — UI 언어에 따라 nameKo / nameEn 반환 */
+  /** 罹먮┃???쒖떆 ?대쫫 ??UI ?몄뼱???곕씪 nameKo / nameEn 諛섑솚 */
   function getLocalizedName(charInfo) {
     if (!charInfo) return '';
     if (charInfo.nameKo != null && charInfo.nameEn != null) {
@@ -65,13 +65,13 @@
   }
 
   function getCharacterInfo(charId, userChars, role) {
-    // 빌트인에서 찾기
+    // 鍮뚰듃?몄뿉??李얘린
     for (var i = 0; i < BUILTIN_CHARACTERS.length; i++) {
       if (BUILTIN_CHARACTERS[i].id === charId) {
         return BUILTIN_CHARACTERS[i];
       }
     }
-    // 사용자 정의에서 찾기
+    // ?ъ슜???뺤쓽?먯꽌 李얘린
     if (userChars) {
       for (var j = 0; j < userChars.length; j++) {
         if (userChars[j].id === charId) {
@@ -79,8 +79,7 @@
         }
       }
     }
-    // 기본값: 역할에 맞는 첫 번째 빌트인
-    role = role || 'assistant';
+    // 湲곕낯媛? ??븷??留욌뒗 泥?踰덉㎏ 鍮뚰듃??    role = role || 'assistant';
     for (var k = 0; k < BUILTIN_CHARACTERS.length; k++) {
       if (BUILTIN_CHARACTERS[k].role === role) {
         return BUILTIN_CHARACTERS[k];
@@ -90,8 +89,8 @@
   }
 
   /**
-   * 아바타 이미지 URL 반환
-   * avatarFile 있으면 단일 파일(예: .webp), 없으면 폴더 내 avatar.png 사용
+   * ?꾨컮? ?대?吏 URL 諛섑솚
+   * avatarFile ?덉쑝硫??⑥씪 ?뚯씪(?? .webp), ?놁쑝硫??대뜑 ??avatar.png ?ъ슜
    */
   function getAvatarSrc(charInfo) {
     if (charInfo.avatarBase64) {
@@ -132,12 +131,12 @@
     var text = normalizeVisibleText(temp.textContent || '');
     if (text.length > 0) return true;
 
-    // 텍스트 외 콘텐츠(이미지/코드/표 등)는 유효 메시지로 본다.
+    // ?띿뒪????肄섑뀗痢??대?吏/肄붾뱶/???????좏슚 硫붿떆吏濡?蹂몃떎.
     return !!temp.querySelector('img, pre, code, table, ul, ol, blockquote, hr, svg, video, audio, canvas, iframe');
   }
 
   /**
-   * 타이핑 인디케이터 버블 생성
+   * ??댄븨 ?몃뵒耳?댄꽣 踰꾨툝 ?앹꽦
    */
   function createTypingBubble(charInfo, displayName) {
     var wrap = document.createElement('div');
@@ -169,14 +168,14 @@
   }
 
   /**
-   * 어시스턴트 메시지 버블 생성 (문단 분리 적용)
+   * ?댁떆?ㅽ꽩??硫붿떆吏 踰꾨툝 ?앹꽦 (臾몃떒 遺꾨━ ?곸슜)
    */
   function createAssistantBubbles(htmlContent, charInfo, displayName, maxChars) {
     var chunks = ns.splitter.split(htmlContent, maxChars);
     var fragment = document.createDocumentFragment();
 
     for (var i = 0; i < chunks.length; i++) {
-      // 액션/숨김 노드를 제거한 뒤 실질 콘텐츠가 없는 청크는 제외
+      // ?≪뀡/?④? ?몃뱶瑜??쒓굅?????ㅼ쭏 肄섑뀗痢좉? ?녿뒗 泥?겕???쒖쇅
       var cleanedChunk = sanitizeAssistantChunkHTML(chunks[i]);
       if (!hasMeaningfulAssistantContent(cleanedChunk)) {
         continue;
@@ -203,7 +202,7 @@
       var bubble = document.createElement('div');
       bubble.className = 'skin-bubble';
       bubble.innerHTML = cleanedChunk;
-      // 캐릭터 테마 색상으로 글로우 효과
+      // 罹먮┃???뚮쭏 ?됱긽?쇰줈 湲濡쒖슦 ?④낵
       bubble.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px ' + charInfo.color + '10';
 
       contentCol.appendChild(nameEl);
@@ -217,7 +216,7 @@
   }
 
   /**
-   * 사용자 메시지 버블 생성
+   * ?ъ슜??硫붿떆吏 踰꾨툝 ?앹꽦
    */
   function createUserBubble(textContent, charInfo, displayName) {
     var wrap = document.createElement('div');
@@ -249,42 +248,66 @@
   }
 
   /**
-   * 메시지를 감싸는 래퍼(article/turn) 찾기
-   * 래퍼를 기준으로 버블을 삽입하여 일관된 너비 보장
+   * 硫붿떆吏瑜?媛먯떥???섑띁(article/turn) 李얘린
+   * ?섑띁瑜?湲곗??쇰줈 踰꾨툝???쎌엯?섏뿬 ?쇨????덈퉬 蹂댁옣
    */
   function findInsertionTarget(msgEl, adapter) {
     var wrapper = adapter.getMessageWrapper(msgEl);
     return wrapper || msgEl;
   }
 
-  function getHideTarget(msgEl, adapter, role) {
+  function isNodeAfter(baseNode, candidateNode) {
+    if (!baseNode || !candidateNode || baseNode === candidateNode) return false;
+    var pos = baseNode.compareDocumentPosition(candidateNode);
+    return !!(pos & Node.DOCUMENT_POSITION_FOLLOWING);
+  }
+
+  function getHideTargets(msgEl, adapter, role) {
+    var targets = [];
+
     if (adapter && adapter.getHideTarget) {
       try {
         var target = adapter.getHideTarget(msgEl, role);
-        if (target && target.classList) return target;
+        if (target && target.classList) targets.push(target);
       } catch (e) {}
     }
-    return msgEl;
+
+    if (adapter && adapter.getExtraHideTargets) {
+      try {
+        var extras = adapter.getExtraHideTargets(msgEl, role) || [];
+        for (var i = 0; i < extras.length; i++) {
+          if (extras[i] && extras[i].classList) targets.push(extras[i]);
+        }
+      } catch (e2) {}
+    }
+
+    if (targets.length === 0) targets.push(msgEl);
+
+    var unique = [];
+    for (var j = 0; j < targets.length; j++) {
+      if (unique.indexOf(targets[j]) === -1) unique.push(targets[j]);
+    }
+    return unique;
   }
 
   function hideOriginal(msgEl, adapter, role) {
-    var target = getHideTarget(msgEl, adapter, role);
-    if (target && target.classList) target.classList.add('skin-original-hidden');
+    var targets = getHideTargets(msgEl, adapter, role);
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i] && targets[i].classList) targets[i].classList.add('skin-original-hidden');
+    }
   }
 
   function showOriginal(msgEl, adapter, role) {
-    // 기본 메시지 노드 복원
     if (msgEl && msgEl.classList) msgEl.classList.remove('skin-original-hidden');
 
-    // 어댑터 지정 숨김 노드 복원
-    var target = getHideTarget(msgEl, adapter, role);
-    if (target && target !== msgEl && target.classList) {
-      target.classList.remove('skin-original-hidden');
+    var targets = getHideTargets(msgEl, adapter, role);
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i] && targets[i].classList) targets[i].classList.remove('skin-original-hidden');
     }
   }
 
   /**
-   * 특정 메시지 요소에 연결된 기존 스킨 버블들 제거
+   * ?뱀젙 硫붿떆吏 ?붿냼???곌껐??湲곗〈 ?ㅽ궓 踰꾨툝???쒓굅
    */
   function removeExistingSkinBubbles(msgEl) {
     var skinId = msgEl.getAttribute('data-skin-id');
@@ -296,22 +319,20 @@
   }
 
   /**
-   * 메시지 요소에 스킨 적용
+   * 硫붿떆吏 ?붿냼???ㅽ궓 ?곸슜
    * 
-   * @param {Element} msgEl - 원본 메시지 요소
-   * @param {Object} adapter - 플랫폼 어댑터
-   * @param {boolean} forceComplete - true이면 isStreaming 체크를 무시하고 완료 상태로 렌더링
-   */
+   * @param {Element} msgEl - ?먮낯 硫붿떆吏 ?붿냼
+   * @param {Object} adapter - ?뚮옯???대뙌??   * @param {boolean} forceComplete - true?대㈃ isStreaming 泥댄겕瑜?臾댁떆?섍퀬 ?꾨즺 ?곹깭濡??뚮뜑留?   */
   function renderMessage(msgEl, adapter, forceComplete) {
-    // 이미 처리된 요소인지 확인
+    // ?대? 泥섎━???붿냼?몄? ?뺤씤
     if (msgEl.getAttribute('data-skin-processed') === 'true') {
-      // forceComplete로 호출된 경우: 기존 타이핑 버블을 완료 상태로 교체
+      // forceComplete濡??몄텧??寃쎌슦: 湲곗〈 ??댄븨 踰꾨툝???꾨즺 ?곹깭濡?援먯껜
       if (forceComplete) {
         removeExistingSkinBubbles(msgEl);
         msgEl.removeAttribute('data-skin-processed');
-        // 아래에서 다시 complete 렌더링됨
+        // ?꾨옒?먯꽌 ?ㅼ떆 complete ?뚮뜑留곷맖
       } else {
-        // 스트리밍 상태 변경 확인
+        // ?ㅽ듃由щ컢 ?곹깭 蹂寃??뺤씤
         var skinId = msgEl.getAttribute('data-skin-id');
         if (skinId) {
           var existingWraps = document.querySelectorAll('.skin-bubble-wrap[data-skin-source="' + skinId + '"]');
@@ -320,16 +341,16 @@
             var isTyping = firstWrap.getAttribute('data-skin-rendered') === 'typing';
             var isStillStreaming = adapter.isStreaming(msgEl);
 
-            // 아직 스트리밍 중이면 유지
+            // ?꾩쭅 ?ㅽ듃由щ컢 以묒씠硫??좎?
             if (isStillStreaming && isTyping) return;
 
-            // 스트리밍이 끝났는데 타이핑 상태이면 다시 렌더링
+            // Streaming finished but typing bubble still exists: re-render complete bubble.
             if (!isStillStreaming && isTyping) {
               removeExistingSkinBubbles(msgEl);
               msgEl.removeAttribute('data-skin-processed');
-              // 아래에서 다시 렌더링됨
+              // ?꾨옒?먯꽌 ?ㅼ떆 ?뚮뜑留곷맖
             } else {
-              return; // 이미 완료
+              return; // ?대? ?꾨즺
             }
           } else {
             return;
@@ -340,22 +361,22 @@
       }
     }
 
-    // ★ 핵심: 비동기 콜백 전에 즉시 'processing' 마크 → race condition 방지
-    // Observer와 polling이 동시에 호출해도 중복 실행되지 않음
+    // ???듭떖: 鍮꾨룞湲?肄쒕갚 ?꾩뿉 利됱떆 'processing' 留덊겕 ??race condition 諛⑹?
+    // Observer? polling???숈떆???몄텧?대룄 以묐났 ?ㅽ뻾?섏? ?딆쓬
     var role = adapter.getRole(msgEl);
     if (!role) return;
 
-    // forceComplete가 true면 isStreaming을 무시
+    // forceComplete媛 true硫?isStreaming??臾댁떆
     var isStreaming = forceComplete ? false : adapter.isStreaming(msgEl);
 
-    // 스킨 ID 부여 (아직 없으면)
+    // ?ㅽ궓 ID 遺??(?꾩쭅 ?놁쑝硫?
     var skinId = msgEl.getAttribute('data-skin-id');
     if (!skinId) {
       skinId = 'skin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
       msgEl.setAttribute('data-skin-id', skinId);
     }
 
-    // 즉시 processed 표시하여 다른 호출에서 중복 처리 방지
+    // 利됱떆 processed ?쒖떆?섏뿬 ?ㅻⅨ ?몄텧?먯꽌 以묐났 泥섎━ 諛⑹?
     msgEl.setAttribute('data-skin-processed', 'true');
 
     function cancelRender() {
@@ -366,20 +387,24 @@
 
     loadSettings(function (settings, userChars) {
       if (!settings.enabled) {
-        // 비활성화 시 이미 설정한 마크 제거
+        // 鍮꾪솢?깊솕 ???대? ?ㅼ젙??留덊겕 ?쒓굅
         cancelRender();
         return;
       }
 
-      // 비동기 콜백 실행 시점에 이미 다른 호출이 버블을 삽입했는지 재확인
+      // Skip duplicate insertion if another render call already inserted this source bubble.
       var existingBubbleCount = document.querySelectorAll('.skin-bubble-wrap[data-skin-source="' + skinId + '"]').length;
       if (existingBubbleCount > 0) {
-        // 이미 버블이 있음 — 중복 삽입 방지
+        // ?대? 踰꾨툝???덉쓬 ??以묐났 ?쎌엯 諛⑹?
         return;
       }
 
-      // 래퍼 요소 결정 (삽입 위치 계산용)
-      var wrapper = adapter.getMessageWrapper ? adapter.getMessageWrapper(msgEl) : msgEl;
+      // ?섑띁 ?붿냼 寃곗젙 (?쎌엯 ?꾩튂 怨꾩궛??
+      var wrapper = findInsertionTarget(msgEl, adapter);
+      if (!wrapper || !wrapper.parentNode) {
+        cancelRender();
+        return;
+      }
 
       if (role === 'assistant') {
         var aCharInfo = getCharacterInfo(settings.assistantCharacterId, userChars, 'assistant');
@@ -387,12 +412,12 @@
         var insertPoint = wrapper.nextSibling;
         var insertParent = wrapper.parentNode;
 
-        // 어댑터가 액션 영역을 제공하면 버블을 action area 앞에 삽입한다.
-        // (Claude/Gemini에서 액션 버튼이 버블 위에 뜨는 문제 방지)
+        // ?대뙌?곌? ?≪뀡 ?곸뿭???쒓났?섎㈃ 踰꾨툝??action area ?욎뿉 ?쎌엯?쒕떎.
+        // (Claude/Gemini?먯꽌 ?≪뀡 踰꾪듉??踰꾨툝 ?꾩뿉 ?⑤뒗 臾몄젣 諛⑹?)
         if (adapter && adapter.getActionArea) {
           try {
             var actionArea = adapter.getActionArea(msgEl);
-            if (actionArea && actionArea.parentNode) {
+            if (actionArea && actionArea.parentNode && isNodeAfter(wrapper, actionArea)) {
               insertParent = actionArea.parentNode;
               insertPoint = actionArea;
             }
@@ -400,8 +425,8 @@
         }
 
         if (isStreaming) {
-          // Gemini는 콘텐츠 없는 placeholder model-response가 남는 경우가 있어
-          // 실질 콘텐츠가 감지될 때만 타이핑 버블을 생성한다.
+          // Gemini??肄섑뀗痢??녿뒗 placeholder model-response媛 ?⑤뒗 寃쎌슦媛 ?덉뼱
+          // ?ㅼ쭏 肄섑뀗痢좉? 媛먯????뚮쭔 ??댄븨 踰꾨툝???앹꽦?쒕떎.
           if (adapter && adapter.name === 'gemini') {
             var streamingHtml = '';
             var streamingText = '';
@@ -418,7 +443,7 @@
             }
           }
 
-          // 원본 메시지 요소만 숨기기 (액션 버튼은 유지)
+          // ?먮낯 硫붿떆吏 ?붿냼留??④린湲?(?≪뀡 踰꾪듉? ?좎?)
           hideOriginal(msgEl, adapter, role);
 
           var typingBubble = createTypingBubble(aCharInfo, aDisplayName);
@@ -436,13 +461,13 @@
           var bubbles = createAssistantBubbles(htmlContent, aCharInfo, aDisplayName, settings.splitMaxChars);
           var bubbleChildren = Array.from(bubbles.children);
 
-          // 내용 없는 assistant 메시지는 렌더링하지 않음 (Gemini 빈 버블 방지)
+          // ?댁슜 ?녿뒗 assistant 硫붿떆吏???뚮뜑留곹븯吏 ?딆쓬 (Gemini 鍮?踰꾨툝 諛⑹?)
           if (bubbleChildren.length === 0) {
             cancelRender();
             return;
           }
 
-          // 원본 메시지 요소만 숨기기 (액션 버튼은 유지)
+          // ?먮낯 硫붿떆吏 ?붿냼留??④린湲?(?≪뀡 踰꾪듉? ?좎?)
           hideOriginal(msgEl, adapter, role);
 
           for (var bc = 0; bc < bubbleChildren.length; bc++) {
@@ -462,24 +487,15 @@
         var userInsertPoint = wrapper.nextSibling;
         var userInsertParent = wrapper.parentNode;
 
-        // 어댑터가 액션 영역을 제공하면 사용자 버블도 action area 앞에 삽입한다.
-        // (Claude에서 hover 기준 영역과 액션 버튼 위치가 어긋나는 문제 방지)
-        if (adapter && adapter.getActionArea) {
-          try {
-            var userActionArea = adapter.getActionArea(msgEl);
-            if (userActionArea && userActionArea.parentNode) {
-              userInsertParent = userActionArea.parentNode;
-              userInsertPoint = userActionArea;
-            }
-          } catch (e3) {}
-        }
+        // User bubble anchor stays immediately after the message wrapper.
+        // Using platform action areas for user turns can move hover/button hit-area above the message.
 
         if (!textContent || !String(textContent).trim()) {
           cancelRender();
           return;
         }
 
-        // 원본 메시지 요소만 숨기기 (액션 버튼은 유지)
+        // ?먮낯 硫붿떆吏 ?붿냼留??④린湲?(?≪뀡 踰꾪듉? ?좎?)
         hideOriginal(msgEl, adapter, role);
 
         var userBubble = createUserBubble(textContent, uCharInfo, uDisplayName);
@@ -493,19 +509,19 @@
   }
 
   /**
-   * 탭 제목을 선택한 상대 캐릭터 이름으로 설정 (화면 내 대화 상대 이름 표시)
+   * ???쒕ぉ???좏깮???곷? 罹먮┃???대쫫?쇰줈 ?ㅼ젙 (?붾㈃ ??????곷? ?대쫫 ?쒖떆)
    */
   function updatePageTitle() {
     // Keep original page title unchanged.
   }
 
   /**
-   * 모든 메시지에 스킨 적용
+   * 紐⑤뱺 硫붿떆吏???ㅽ궓 ?곸슜
    */
   function renderAll(adapter) {
     loadSettings(function (settings, userChars) {
       if (!settings.enabled) {
-        // 비활성화 시 모든 스킨 제거 및 원본 복원
+        // 鍮꾪솢?깊솕 ??紐⑤뱺 ?ㅽ궓 ?쒓굅 諛??먮낯 蹂듭썝
         restoreAll();
         return;
       }
@@ -518,22 +534,22 @@
   }
 
   /**
-   * 모든 스킨 제거하고 원본 복원
+   * 紐⑤뱺 ?ㅽ궓 ?쒓굅?섍퀬 ?먮낯 蹂듭썝
    */
   function restoreAll() {
-    // 스킨 컨테이너(내부 버블 포함) 제거
+    // ?ㅽ궓 而⑦뀒?대꼫(?대? 踰꾨툝 ?ы븿) ?쒓굅
     var containers = document.querySelectorAll('.skin-bubble-container');
     for (var i = 0; i < containers.length; i++) {
       containers[i].remove();
     }
 
-    // 숨겨진 원본 요소 복원 (래퍼 포함)
+    // ?④꺼吏??먮낯 ?붿냼 蹂듭썝 (?섑띁 ?ы븿)
     var hiddenEls = document.querySelectorAll('.skin-original-hidden');
     for (var k = 0; k < hiddenEls.length; k++) {
       hiddenEls[k].classList.remove('skin-original-hidden');
     }
 
-    // data-skin-processed 속성 정리
+    // data-skin-processed ?띿꽦 ?뺣━
     var processed = document.querySelectorAll('[data-skin-processed="true"]');
     for (var j = 0; j < processed.length; j++) {
       processed[j].removeAttribute('data-skin-processed');
@@ -542,7 +558,7 @@
   }
 
   /**
-   * 모든 메시지를 다시 렌더링 (설정 변경 시)
+   * 紐⑤뱺 硫붿떆吏瑜??ㅼ떆 ?뚮뜑留?(?ㅼ젙 蹂寃???
    */
   function reRenderAll(adapter) {
     restoreAll();
@@ -550,8 +566,8 @@
   }
 
   /**
-   * 메시지 원본과 연결이 끊긴(또는 유효하지 않은) 고아 스킨 버블 정리
-   * Gemini에서 placeholder turn이 사라진 뒤 남는 빈 버블/타이핑 버블 방지용.
+   * 硫붿떆吏 ?먮낯怨??곌껐???딄릿(?먮뒗 ?좏슚?섏? ?딆?) 怨좎븘 ?ㅽ궓 踰꾨툝 ?뺣━
+   * Gemini?먯꽌 placeholder turn???щ씪吏????⑤뒗 鍮?踰꾨툝/??댄븨 踰꾨툝 諛⑹???
    */
   function cleanupStaleBubbles(adapter) {
     var containers = document.querySelectorAll('.skin-bubble-container');
@@ -571,12 +587,12 @@
 
         var sourceEl = document.querySelector('[data-skin-id="' + sourceId + '"]');
         if (!sourceEl) {
-          continue; // 고아 후보
+          continue; // 怨좎븘 ?꾨낫
         }
 
         hasLiveSource = true;
 
-        // 타이핑 버블인데 실제 스트리밍이 끝났다면 stale로 판단
+        // ??댄븨 踰꾨툝?몃뜲 ?ㅼ젣 ?ㅽ듃由щ컢???앸궗?ㅻ㈃ stale濡??먮떒
         var isTyping = wrap.getAttribute('data-skin-rendered') === 'typing';
         if (isTyping && adapter && adapter.isStreaming) {
           var stillStreaming = false;
@@ -586,7 +602,7 @@
 
           if (!stillStreaming) {
             removeContainer = true;
-            // 가능한 경우 완료 렌더 시도 (내용이 없으면 내부적으로 cancelRender됨)
+            // 媛?ν븳 寃쎌슦 ?꾨즺 ?뚮뜑 ?쒕룄 (?댁슜???놁쑝硫??대??곸쑝濡?cancelRender??
             try {
               renderMessage(sourceEl, adapter, true);
             } catch (e2) {}
@@ -594,13 +610,13 @@
         }
       }
 
-      // 소스가 사라진 고아 컨테이너는 제거
+      // ?뚯뒪媛 ?щ씪吏?怨좎븘 而⑦뀒?대꼫???쒓굅
       if (!hasLiveSource || removeContainer) {
         container.remove();
         continue;
       }
 
-      // 완료 버블 중 의미 없는 버블은 개별 제거
+      // ?꾨즺 踰꾨툝 以??섎? ?녿뒗 踰꾨툝? 媛쒕퀎 ?쒓굅
       var completeWraps = container.querySelectorAll('.skin-bubble-wrap[data-skin-rendered="complete"]');
       for (var k = 0; k < completeWraps.length; k++) {
         var bubble = completeWraps[k].querySelector('.skin-bubble');
@@ -620,7 +636,7 @@
     }
   }
 
-  // 공개 API
+  // 怨듦컻 API
   ns.renderer = {
     renderMessage: renderMessage,
     renderAll: renderAll,

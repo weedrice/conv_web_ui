@@ -532,3 +532,19 @@ html[data-mode="dark"] .skin-avatar {
 .skin-bubble pre::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* Gemini user turns: compact vertical rhythm to reduce perceived row height */
+user-query .skin-bubble-wrap-user {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 2px !important;
+}
+
+user-query .skin-bubble-wrap-user .skin-avatar {
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  max-width: 56px !important;
+  max-height: 56px !important;
+}

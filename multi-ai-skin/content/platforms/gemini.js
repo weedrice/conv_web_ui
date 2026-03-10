@@ -69,9 +69,49 @@
   function getAssistantActionArea(assistantTurn) {
     if (!assistantTurn) return null;
 
-    return assistantTurn.querySelector(
-      'message-actions, [data-test-id="copy-button"], [data-test-id="more-menu-button"], [data-test-id="actions-menu-button"], [data-test-id="conversation-actions-menu-icon-button"]'
+    var actionWrap = assistantTurn.querySelector('message-actions');
+    if (actionWrap) return actionWrap;
+
+    var actionBtn = assistantTurn.querySelector(
+      '[data-test-id="copy-button"], [data-test-id="more-menu-button"], [data-test-id="actions-menu-button"], [data-test-id="conversation-actions-menu-icon-button"]'
     );
+    if (!actionBtn) return null;
+    return actionBtn.closest('message-actions') || actionBtn;
+  }
+
+  function getUserActionArea(userTurn) {
+    if (!userTurn || !userTurn.querySelector) return null;
+    var actionButton = userTurn.querySelector(
+      '[data-test-id*="copy"], [data-testid*="copy"], [data-test-id*="edit"], [data-testid*="edit"], [aria-label*="복사"], [aria-label*="수정"], [aria-label*="편집"], [aria-label*="Copy"], [aria-label*="Edit"]'
+    );
+    if (!actionButton) return null;
+    return actionButton.closest('.query-content, .user-query-content, .user-query-container, [class*="query-content"], [class*="query-container"]') ||
+      actionButton.parentElement ||
+      actionButton;
+  }
+
+  function getUserBubbleVisualNode(userTurn) {
+    if (!userTurn || !userTurn.querySelector) return null;
+    // Use the real bubble shell as the primary anchor to keep hover controls aligned.
+    return userTurn.querySelector('.user-query-bubble-with-background') ||
+      userTurn.querySelector('.query-text-line') ||
+      userTurn.querySelector('.query-text') ||
+      userTurn.querySelector('.query-content') ||
+      userTurn.querySelector('.user-query-container') ||
+      userTurn.querySelector('.user-query-content');
+  }
+
+  function getUserHideNode(userTurn) {
+    if (!userTurn || !userTurn.querySelector) return null;
+    return userTurn.querySelector('.user-query-bubble-with-background') ||
+      userTurn.querySelector('.query-text-line') ||
+      userTurn.querySelector('.query-text') ||
+      userTurn.querySelector('.user-query-content');
+  }
+
+  function getAssistantAvatarGutter(assistantTurn) {
+    if (!assistantTurn || !assistantTurn.querySelector) return null;
+    return assistantTurn.querySelector('.presented-response-container .avatar-gutter, .avatar-gutter');
   }
 
   function isGeminiActionAreaElement(el) {
@@ -343,7 +383,9 @@
 
     getMessageWrapper: function (el) {
       var userTurn = toUserTurn(el);
-      if (userTurn) return userTurn;
+      if (userTurn) {
+        return getUserBubbleVisualNode(userTurn) || userTurn;
+      }
 
       var assistantTurn = toAssistantTurn(el);
       if (assistantTurn) return assistantTurn;
@@ -360,14 +402,26 @@
 
       if (role === 'user') {
         var userTurn = toUserTurn(el) || el;
-        return getUserContentNode(userTurn) || userTurn;
+        return getUserHideNode(userTurn) || userTurn;
       }
 
       return el;
     },
 
+    getExtraHideTargets: function (el, role) {
+      if (role !== 'assistant') return [];
+      var assistantTurn = toAssistantTurn(el) || el;
+      var avatarGutter = getAssistantAvatarGutter(assistantTurn);
+      return avatarGutter ? [avatarGutter] : [];
+    },
+
     // 디버깅/후처리를 위해 액션 영역을 메시지 본문과 분리 조회
     getActionArea: function (el) {
+      var userTurn = toUserTurn(el);
+      // Gemini user hover controls are positioned near the message (left/top area).
+      // Using them as insertion anchors moves layout below the bubble and inflates height.
+      if (userTurn) return null;
+
       var assistantTurn = toAssistantTurn(el);
       if (!assistantTurn) return null;
       return getAssistantActionArea(assistantTurn);
