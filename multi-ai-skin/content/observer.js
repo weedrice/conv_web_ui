@@ -151,6 +151,11 @@
         }
       }
     }
+
+    // 렌더 이후 고아/빈 버블 정리 (Gemini placeholder 대응)
+    if (ns.renderer && ns.renderer.cleanupStaleBubbles) {
+      ns.renderer.cleanupStaleBubbles(adapter);
+    }
   }
 
   /**

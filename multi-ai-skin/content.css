@@ -42,6 +42,26 @@
   min-width: 0 !important;
 }
 
+/* === ChatGPT 폭 고정: conversation turn 본문 폭 내부로 수렴 ===
+   renderer가 turn/article 뒤에 .skin-bubble-container를 삽입하므로
+   adjacent sibling 셀렉터로 ChatGPT 본문 최대폭을 강제한다. */
+[data-testid^="conversation-turn-"] + .skin-bubble-container,
+[data-testid^="conversation-turn"] + .skin-bubble-container,
+article + .skin-bubble-container {
+  width: 100% !important;
+  max-width: var(--thread-content-max-width, 48rem) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* ChatGPT에서만 래퍼 좌우 패딩을 줄여 본문 가로폭 오버슈팅 방지 */
+[data-testid^="conversation-turn-"] + .skin-bubble-container .skin-bubble-wrap,
+[data-testid^="conversation-turn"] + .skin-bubble-container .skin-bubble-wrap,
+article + .skin-bubble-container .skin-bubble-wrap {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 /* === 버블 래퍼 (아바타 + 콘텐츠 컬럼) === */
 .skin-bubble-wrap {
   display: flex !important;

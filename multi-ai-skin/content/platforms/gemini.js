@@ -66,28 +66,143 @@
     return document.querySelectorAll('model-response');
   }
 
+  function sanitizeText(text) {
+    return (text || '')
+      .replace(/\u00a0/g, ' ')
+      .replace(/^말씀하신 내용\s*/g, '')
+      .trim();
+  }
+
   function getAssistantContentNode(el) {
     if (!el) return null;
 
+    // querySelector의 콤마 셀렉터는 "문서 순서상 첫 매치"를 반환하므로
+    // message-content 같은 상위 래퍼가 먼저 잡히는 문제를 피하기 위해 우선순위를 분리한다.
+    var prioritySelectors = [
+      '.markdown.markdown-main-panel',
+      '.markdown-main-panel',
+      '.model-response-text',
+      '.response-content'
+    ];
+
     // Shadow DOM 우선 탐색
     if (el.shadowRoot) {
-      var shadowNode = el.shadowRoot.querySelector(
-        '.markdown.markdown-main-panel, .markdown-main-panel, .model-response-text, .response-content, message-content'
-      );
-      if (shadowNode) return shadowNode;
+      for (var i = 0; i < prioritySelectors.length; i++) {
+        var shadowNode = el.shadowRoot.querySelector(prioritySelectors[i]);
+        if (shadowNode) return shadowNode;
+      }
     }
 
     // Light DOM 탐색
-    return el.querySelector(
-      '.markdown.markdown-main-panel, .markdown-main-panel, .model-response-text, .response-content, message-content'
-    );
+    for (var j = 0; j < prioritySelectors.length; j++) {
+      var node = el.querySelector(prioritySelectors[j]);
+      if (node) return node;
+    }
+
+    return null;
   }
 
   function getUserContentNode(el) {
     if (!el) return null;
 
-    return el.querySelector('.query-text, .query-text-line, [class*="query-text"], .user-query-text, [class*="query-content"]') ||
-           el.querySelector('p');
+    // query-text-line이 실제 사용자 입력 텍스트에 가장 가깝다.
+    var line = el.querySelector('.query-text-line');
+    if (line) return line;
+
+    return el.querySelector('.query-text, [class*="query-text"], .user-query-text, [class*="query-content"]') ||
+      el.querySelector('p');
+  }
+
+  function sanitizeText(text) {
+    return String(text || '')
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .replace(/\u00A0/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function sanitizeAssistantText(text) {
+    var cleaned = sanitizeText(text);
+
+    // Gemini 보조 라벨 제거
+    cleaned = cleaned
+      .replace(/^Gemini의 응답\s*/g, '')
+      .replace(/^응답\s*/g, '')
+      .replace(/^답변\s*/g, '')
+      .trim();
+
+    return cleaned;
+  }
+
+  function isMeaningfulAssistantText(text) {
+    var cleaned = sanitizeAssistantText(text);
+    if (!cleaned) return false;
+
+    // 라벨만 남은 경우는 의미 없는 텍스트로 처리
+    if (/^(Gemini의 응답|응답|답변)$/i.test(cleaned)) return false;
+    return true;
+  }
+
+  function getUserCleanText(userTurn) {
+    if (!userTurn) return '';
+
+    // 줄 단위 텍스트를 우선 수집 (시각숨김 라벨 제외)
+    var lines = userTurn.querySelectorAll('.query-text-line');
+    if (lines.length > 0) {
+      var lineTexts = [];
+      for (var i = 0; i < lines.length; i++) {
+        var t = sanitizeText(lines[i].textContent || '');
+        if (t) lineTexts.push(t);
+      }
+      if (lineTexts.length > 0) return lineTexts.join('\n');
+    }
+
+    // 폴백: query-text 영역에서 시각숨김 라벨 제거 후 추출
+    var queryText = userTurn.querySelector('.query-text, [class*="query-text"], .user-query-text, [class*="query-content"]');
+    if (queryText) {
+      var qtClone = queryText.cloneNode(true);
+      var hidden = qtClone.querySelectorAll('.cdk-visually-hidden, [aria-hidden="true"]');
+      for (var h = 0; h < hidden.length; h++) {
+        hidden[h].remove();
+      }
+      return sanitizeText(qtClone.textContent || '');
+    }
+
+    var plainNode = getUserContentNode(userTurn);
+    if (plainNode) return sanitizeText(plainNode.textContent || '');
+
+    return sanitizeText(userTurn.textContent || '');
+  }
+
+  function getAssistantCleanText(assistantTurn) {
+    if (!assistantTurn) return '';
+
+    var contentNode = getAssistantContentNode(assistantTurn);
+    if (contentNode) {
+      var contentClone = contentNode.cloneNode(true);
+      var hidden = contentClone.querySelectorAll(
+        '.cdk-visually-hidden, [aria-hidden="true"], message-actions, copy-button, button, [data-test-id], [class*="action"], [class*="menu"], [class*="feedback"], [class*="toolbar"], [class*="chip"], mat-icon, [class*="icon"]'
+      );
+      for (var i = 0; i < hidden.length; i++) {
+        hidden[i].remove();
+      }
+      return sanitizeAssistantText(contentClone.textContent || '');
+    }
+
+    var clone = assistantTurn.cloneNode(true);
+    var removeNodes = clone.querySelectorAll('message-actions, button, [class*="action"], [class*="menu"], [class*="feedback"], mat-icon, [class*="icon"], .cdk-visually-hidden, [aria-hidden="true"]');
+    for (var r = 0; r < removeNodes.length; r++) {
+      removeNodes[r].remove();
+    }
+    return sanitizeAssistantText(clone.textContent || '');
+  }
+
+  function shouldUseAssistantTurn(adapter, assistantTurn) {
+    if (!assistantTurn || isSkinNode(assistantTurn)) return false;
+    if (adapter.isStreaming(assistantTurn)) return true;
+
+    // 비어 있는 placeholder model-response는 제외
+    return isMeaningfulAssistantText(getAssistantCleanText(assistantTurn));
   }
 
   ns.platforms.gemini = {
@@ -108,7 +223,9 @@
 
         var assistantTurns = collectAssistantTurns();
         for (var j = 0; j < assistantTurns.length; j++) {
-          if (!isSkinNode(assistantTurns[j])) allMsgs.push(assistantTurns[j]);
+          if (shouldUseAssistantTurn(this, assistantTurns[j])) {
+            allMsgs.push(assistantTurns[j]);
+          }
         }
       } catch (e) {
         console.warn('[AIChatSkin] Gemini getMessages error:', e);
@@ -165,21 +282,11 @@
 
       if (role === 'user') {
         var userTurn = toUserTurn(el) || el;
-        var queryText = getUserContentNode(userTurn);
-        if (queryText) return (queryText.textContent || '').trim();
-        return (userTurn.textContent || '').trim();
+        return getUserCleanText(userTurn);
       }
 
       var assistantTurn = toAssistantTurn(el) || el;
-      var contentNode = getAssistantContentNode(assistantTurn);
-      if (contentNode) return (contentNode.textContent || '').trim();
-
-      var clone = assistantTurn.cloneNode(true);
-      var removeNodes = clone.querySelectorAll('message-actions, button, [class*="action"], [class*="menu"], [class*="feedback"], mat-icon, [class*="icon"]');
-      for (var i = 0; i < removeNodes.length; i++) {
-        removeNodes[i].remove();
-      }
-      return (clone.textContent || '').replace(/^말씀하신 내용\s*/g, '').trim();
+      return getAssistantCleanText(assistantTurn);
     },
 
     getInnerHTML: function (el) {
