@@ -548,3 +548,10 @@ user-query .skin-bubble-wrap-user .skin-avatar {
   max-width: 56px !important;
   max-height: 56px !important;
 }
+
+/* Gemini assistant: hide native avatar/logo while skin is active (including streaming phase). */
+model-response[data-skin-processed="true"] .avatar-gutter,
+model-response[data-skin-processed="true"] .presented-response-container .avatar-gutter {
+  display: none !important;
+  visibility: hidden !important;
+}

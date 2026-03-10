@@ -425,24 +425,6 @@
         }
 
         if (isStreaming) {
-          // Gemini??肄섑뀗痢??녿뒗 placeholder model-response媛 ?⑤뒗 寃쎌슦媛 ?덉뼱
-          // ?ㅼ쭏 肄섑뀗痢좉? 媛먯????뚮쭔 ??댄븨 踰꾨툝???앹꽦?쒕떎.
-          if (adapter && adapter.name === 'gemini') {
-            var streamingHtml = '';
-            var streamingText = '';
-            try {
-              streamingHtml = adapter.getInnerHTML(msgEl) || '';
-            } catch (e1) {}
-            try {
-              streamingText = adapter.getTextContent(msgEl) || '';
-            } catch (e2) {}
-
-            if (!hasMeaningfulAssistantContent(streamingHtml) && !normalizeVisibleText(streamingText)) {
-              cancelRender();
-              return;
-            }
-          }
-
           // ?먮낯 硫붿떆吏 ?붿냼留??④린湲?(?≪뀡 踰꾪듉? ?좎?)
           hideOriginal(msgEl, adapter, role);
 

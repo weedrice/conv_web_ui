@@ -69,8 +69,22 @@
   function getAssistantActionArea(assistantTurn) {
     if (!assistantTurn) return null;
 
-    var actionWrap = assistantTurn.querySelector('message-actions');
-    if (actionWrap) return actionWrap;
+    var contentNode = getAssistantContentNode(assistantTurn);
+    var actionWraps = assistantTurn.querySelectorAll('message-actions');
+    if (actionWraps.length > 0) {
+      // Prefer the first action area that comes after content.
+      if (contentNode && contentNode.compareDocumentPosition) {
+        for (var i = 0; i < actionWraps.length; i++) {
+          var pos = contentNode.compareDocumentPosition(actionWraps[i]);
+          if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+            return actionWraps[i];
+          }
+        }
+      }
+
+      // Fallback: use the last action block to avoid top/header controls.
+      return actionWraps[actionWraps.length - 1];
+    }
 
     var actionBtn = assistantTurn.querySelector(
       '[data-test-id="copy-button"], [data-test-id="more-menu-button"], [data-test-id="actions-menu-button"], [data-test-id="conversation-actions-menu-icon-button"]'
@@ -388,7 +402,9 @@
       }
 
       var assistantTurn = toAssistantTurn(el);
-      if (assistantTurn) return assistantTurn;
+      if (assistantTurn) {
+        return getAssistantContentNode(assistantTurn) || assistantTurn;
+      }
 
       return el;
     },
