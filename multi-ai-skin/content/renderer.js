@@ -1,7 +1,8 @@
 /**
- * renderer.js ??踰꾨툝 ?뚮뜑留?濡쒖쭅
- * 
- * ?먮낯 硫붿떆吏 ?붿냼瑜??④린怨? 罹먮┃??湲곕컲 硫붿떊? 踰꾨툝 UI瑜??쎌엯?쒕떎.
+ * renderer.js - Bubble rendering layer
+ *
+ * Replaces native chat message nodes with character-styled bubble UI while
+ * preserving platform-specific layout and action areas.
  */
 (function () {
   'use strict';
@@ -10,7 +11,8 @@
   var BUILTIN_CHARACTERS = ns.BUILTIN_CHARACTERS || [];
 
   /**
-   * ?ㅼ젙 遺덈윭?ㅺ린 (罹먯떆 ?ы븿)
+   * Cached settings/user character state used as a fallback when the extension
+   * context becomes unavailable.
    */
   var cachedSettings = null;
   var cachedUserChars = null;
@@ -32,20 +34,20 @@
             callback(settings, data.userCharacters);
           });
         } catch (e2) {
-          // Extension context invalidated ??罹먯떆 ?ъ슜
+          // Extension context invalidated: use the last known local characters.
           callback(settings, cachedUserChars || []);
         }
       });
     } catch (e) {
-      // Extension context invalidated ??罹먯떆???ㅼ젙 ?ъ슜
+      // Extension context invalidated: fall back to the last cached settings.
       if (cachedSettings) {
         callback(cachedSettings, cachedUserChars || []);
       }
-      // 罹먯떆???놁쑝硫?議곗슜??醫낅즺
+      // No cache available: leave rendering unchanged.
     }
   }
 
-  /** Chrome UI ?몄뼱 (?? 'ko', 'en') */
+  /** Returns the current Chrome UI language code, e.g. 'ko' or 'en'. */
   function getUILanguage() {
     try {
       if (typeof chrome !== 'undefined' && chrome.i18n && chrome.i18n.getUILanguage) {
@@ -55,7 +57,7 @@
     return (navigator.language || navigator.userLanguage || 'en').split('-')[0];
   }
 
-  /** 罹먮┃???쒖떆 ?대쫫 ??UI ?몄뼱???곕씪 nameKo / nameEn 諛섑솚 */
+  /** Resolves the localized character name using the current UI language. */
   function getLocalizedName(charInfo) {
     if (!charInfo) return '';
     if (charInfo.nameKo != null && charInfo.nameEn != null) {
@@ -65,13 +67,14 @@
   }
 
   function getCharacterInfo(charId, userChars, role) {
-    // 鍮뚰듃?몄뿉??李얘린
+    // Prefer built-in characters first.
     for (var i = 0; i < BUILTIN_CHARACTERS.length; i++) {
       if (BUILTIN_CHARACTERS[i].id === charId) {
         return BUILTIN_CHARACTERS[i];
       }
     }
-    // ?ъ슜???뺤쓽?먯꽌 李얘린
+
+    // Then look in user-created characters.
     if (userChars) {
       for (var j = 0; j < userChars.length; j++) {
         if (userChars[j].id === charId) {
@@ -79,7 +82,9 @@
         }
       }
     }
-    // 湲곕낯媛? ??븷??留욌뒗 泥?踰덉㎏ 鍮뚰듃??    role = role || 'assistant';
+
+    // Fall back to the first built-in character matching the requested role.
+    role = role || 'assistant';
     for (var k = 0; k < BUILTIN_CHARACTERS.length; k++) {
       if (BUILTIN_CHARACTERS[k].role === role) {
         return BUILTIN_CHARACTERS[k];
@@ -89,8 +94,8 @@
   }
 
   /**
-   * ?꾨컮? ?대?吏 URL 諛섑솚
-   * avatarFile ?덉쑝硫??⑥씪 ?뚯씪(?? .webp), ?놁쑝硫??대뜑 ??avatar.png ?ъ슜
+   * Builds the avatar source URL.
+   * Prefer avatarBase64, then avatarFile, then the default avatar.png path.
    */
   function getAvatarSrc(charInfo) {
     if (charInfo.avatarBase64) {
@@ -131,13 +136,11 @@
     var text = normalizeVisibleText(temp.textContent || '');
     if (text.length > 0) return true;
 
-    // ?띿뒪????肄섑뀗痢??대?吏/肄붾뱶/???????좏슚 硫붿떆吏濡?蹂몃떎.
+    // Keep non-text assistant content such as images, code blocks, tables, etc.
     return !!temp.querySelector('img, pre, code, table, ul, ol, blockquote, hr, svg, video, audio, canvas, iframe');
   }
 
-  /**
-   * ??댄븨 ?몃뵒耳?댄꽣 踰꾨툝 ?앹꽦
-   */
+  /** Creates the transient typing bubble shown while the assistant streams. */
   function createTypingBubble(charInfo, displayName) {
     var wrap = document.createElement('div');
     wrap.className = 'skin-bubble-wrap skin-bubble-wrap-assistant';
@@ -168,14 +171,14 @@
   }
 
   /**
-   * ?댁떆?ㅽ꽩??硫붿떆吏 踰꾨툝 ?앹꽦 (臾몃떒 遺꾨━ ?곸슜)
+   * Creates fully rendered assistant bubbles, splitting long content into chunks.
    */
   function createAssistantBubbles(htmlContent, charInfo, displayName, maxChars) {
     var chunks = ns.splitter.split(htmlContent, maxChars);
     var fragment = document.createDocumentFragment();
 
     for (var i = 0; i < chunks.length; i++) {
-      // ?≪뀡/?④? ?몃뱶瑜??쒓굅?????ㅼ쭏 肄섑뀗痢좉? ?녿뒗 泥?겕???쒖쇅
+      // Drop empty chunks produced by action/menu markup or placeholder nodes.
       var cleanedChunk = sanitizeAssistantChunkHTML(chunks[i]);
       if (!hasMeaningfulAssistantContent(cleanedChunk)) {
         continue;
@@ -202,7 +205,7 @@
       var bubble = document.createElement('div');
       bubble.className = 'skin-bubble';
       bubble.innerHTML = cleanedChunk;
-      // 罹먮┃???뚮쭏 ?됱긽?쇰줈 湲濡쒖슦 ?④낵
+      // Tint the bubble outline with the selected character color.
       bubble.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px ' + charInfo.color + '10';
 
       contentCol.appendChild(nameEl);
@@ -215,9 +218,7 @@
     return fragment;
   }
 
-  /**
-   * ?ъ슜??硫붿떆吏 踰꾨툝 ?앹꽦
-   */
+  /** Creates a rendered user bubble. */
   function createUserBubble(textContent, charInfo, displayName) {
     var wrap = document.createElement('div');
     wrap.className = 'skin-bubble-wrap skin-bubble-wrap-user';
@@ -248,8 +249,8 @@
   }
 
   /**
-   * 硫붿떆吏瑜?媛먯떥???섑띁(article/turn) 李얘린
-   * ?섑띁瑜?湲곗??쇰줈 踰꾨툝???쎌엯?섏뿬 ?쇨????덈퉬 蹂댁옣
+   * Finds the DOM node that should act as the insertion anchor for a message.
+   * Usually this is the message wrapper or turn-local content node.
    */
   function findInsertionTarget(msgEl, adapter) {
     var wrapper = adapter.getMessageWrapper(msgEl);
@@ -306,9 +307,7 @@
     }
   }
 
-  /**
-   * ?뱀젙 硫붿떆吏 ?붿냼???곌껐??湲곗〈 ?ㅽ궓 踰꾨툝???쒓굅
-   */
+  /** Removes already rendered skin bubbles linked to a source message. */
   function removeExistingSkinBubbles(msgEl) {
     var skinId = msgEl.getAttribute('data-skin-id');
     if (skinId) {
@@ -319,20 +318,22 @@
   }
 
   /**
-   * 硫붿떆吏 ?붿냼???ㅽ궓 ?곸슜
-   * 
-   * @param {Element} msgEl - ?먮낯 硫붿떆吏 ?붿냼
-   * @param {Object} adapter - ?뚮옯???대뙌??   * @param {boolean} forceComplete - true?대㈃ isStreaming 泥댄겕瑜?臾댁떆?섍퀬 ?꾨즺 ?곹깭濡??뚮뜑留?   */
+   * Renders one source message into the skin UI.
+   *
+   * @param {Element} msgEl Source message element.
+   * @param {Object} adapter Platform adapter.
+   * @param {boolean} forceComplete If true, bypass streaming state and render as complete.
+   */
   function renderMessage(msgEl, adapter, forceComplete) {
-    // ?대? 泥섎━???붿냼?몄? ?뺤씤
+    // Skip messages that were already processed unless a full re-render is requested.
     if (msgEl.getAttribute('data-skin-processed') === 'true') {
-      // forceComplete濡??몄텧??寃쎌슦: 湲곗〈 ??댄븨 踰꾨툝???꾨즺 ?곹깭濡?援먯껜
+      // forceComplete is used when a stale typing bubble must become a final bubble.
       if (forceComplete) {
         removeExistingSkinBubbles(msgEl);
         msgEl.removeAttribute('data-skin-processed');
-        // ?꾨옒?먯꽌 ?ㅼ떆 complete ?뚮뜑留곷맖
+        // Continue into the normal complete render path.
       } else {
-        // ?ㅽ듃由щ컢 ?곹깭 蹂寃??뺤씤
+        // Normal duplicate guard.
         var skinId = msgEl.getAttribute('data-skin-id');
         if (skinId) {
           var existingWraps = document.querySelectorAll('.skin-bubble-wrap[data-skin-source="' + skinId + '"]');
@@ -341,16 +342,16 @@
             var isTyping = firstWrap.getAttribute('data-skin-rendered') === 'typing';
             var isStillStreaming = adapter.isStreaming(msgEl);
 
-            // ?꾩쭅 ?ㅽ듃由щ컢 以묒씠硫??좎?
+            // Still streaming and already showing typing UI.
             if (isStillStreaming && isTyping) return;
 
             // Streaming finished but typing bubble still exists: re-render complete bubble.
             if (!isStillStreaming && isTyping) {
               removeExistingSkinBubbles(msgEl);
               msgEl.removeAttribute('data-skin-processed');
-              // ?꾨옒?먯꽌 ?ㅼ떆 ?뚮뜑留곷맖
+              // Re-run below as a complete render.
             } else {
-              return; // ?대? ?꾨즺
+              return; // Already rendered.
             }
           } else {
             return;
@@ -361,22 +362,21 @@
       }
     }
 
-    // ???듭떖: 鍮꾨룞湲?肄쒕갚 ?꾩뿉 利됱떆 'processing' 留덊겕 ??race condition 諛⑹?
-    // Observer? polling???숈떆???몄텧?대룄 以묐났 ?ㅽ뻾?섏? ?딆쓬
+    // Mark early to reduce observer/polling races that can trigger duplicate renders.
     var role = adapter.getRole(msgEl);
     if (!role) return;
 
-    // forceComplete媛 true硫?isStreaming??臾댁떆
+    // forceComplete forces the non-streaming render path.
     var isStreaming = forceComplete ? false : adapter.isStreaming(msgEl);
 
-    // ?ㅽ궓 ID 遺??(?꾩쭅 ?놁쑝硫?
+    // Assign a stable source id for matching bubble containers to source nodes.
     var skinId = msgEl.getAttribute('data-skin-id');
     if (!skinId) {
       skinId = 'skin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
       msgEl.setAttribute('data-skin-id', skinId);
     }
 
-    // 利됱떆 processed ?쒖떆?섏뿬 ?ㅻⅨ ?몄텧?먯꽌 以묐났 泥섎━ 諛⑹?
+    // Mark before async settings load so concurrent renders can detect in-flight work.
     msgEl.setAttribute('data-skin-processed', 'true');
 
     function cancelRender() {
@@ -387,7 +387,7 @@
 
     loadSettings(function (settings, userChars) {
       if (!settings.enabled) {
-        // 鍮꾪솢?깊솕 ???대? ?ㅼ젙??留덊겕 ?쒓굅
+        // Skin disabled: restore native UI and stop.
         cancelRender();
         return;
       }
@@ -395,11 +395,11 @@
       // Skip duplicate insertion if another render call already inserted this source bubble.
       var existingBubbleCount = document.querySelectorAll('.skin-bubble-wrap[data-skin-source="' + skinId + '"]').length;
       if (existingBubbleCount > 0) {
-        // ?대? 踰꾨툝???덉쓬 ??以묐났 ?쎌엯 諛⑹?
+        // Another render call already inserted the bubble.
         return;
       }
 
-      // ?섑띁 ?붿냼 寃곗젙 (?쎌엯 ?꾩튂 怨꾩궛??
+      // Resolve the insertion anchor once settings are available.
       var wrapper = findInsertionTarget(msgEl, adapter);
       if (!wrapper || !wrapper.parentNode) {
         cancelRender();
@@ -412,8 +412,8 @@
         var insertPoint = wrapper.nextSibling;
         var insertParent = wrapper.parentNode;
 
-        // ?대뙌?곌? ?≪뀡 ?곸뿭???쒓났?섎㈃ 踰꾨툝??action area ?욎뿉 ?쎌엯?쒕떎.
-        // (Claude/Gemini?먯꽌 ?≪뀡 踰꾪듉??踰꾨툝 ?꾩뿉 ?⑤뒗 臾몄젣 諛⑹?)
+        // If the adapter exposes an action area after the content, insert before it
+        // so platform buttons stay visually attached to the rendered bubble.
         if (adapter && adapter.getActionArea) {
           try {
             var actionArea = adapter.getActionArea(msgEl);
@@ -426,7 +426,7 @@
         }
 
         if (isStreaming) {
-          // ?먮낯 硫붿떆吏 ?붿냼留??④린湲?(?≪뀡 踰꾪듉? ?좎?)
+          // Hide the native assistant content while streaming.
           hideOriginal(msgEl, adapter, role);
 
           var typingBubble = createTypingBubble(aCharInfo, aDisplayName);
@@ -444,13 +444,13 @@
           var bubbles = createAssistantBubbles(htmlContent, aCharInfo, aDisplayName, settings.splitMaxChars);
           var bubbleChildren = Array.from(bubbles.children);
 
-          // ?댁슜 ?녿뒗 assistant 硫붿떆吏???뚮뜑留곹븯吏 ?딆쓬 (Gemini 鍮?踰꾨툝 諛⑹?)
+          // Abort if sanitization removed everything useful from the assistant response.
           if (bubbleChildren.length === 0) {
             cancelRender();
             return;
           }
 
-          // ?먮낯 硫붿떆吏 ?붿냼留??④린湲?(?≪뀡 踰꾪듉? ?좎?)
+          // Hide native assistant content once the replacement bubbles are ready.
           hideOriginal(msgEl, adapter, role);
 
           for (var bc = 0; bc < bubbleChildren.length; bc++) {
@@ -478,7 +478,7 @@
           return;
         }
 
-        // ?먮낯 硫붿떆吏 ?붿냼留??④린湲?(?≪뀡 踰꾪듉? ?좎?)
+        // Hide the native user message once the replacement bubble is ready.
         hideOriginal(msgEl, adapter, role);
 
         var userBubble = createUserBubble(textContent, uCharInfo, uDisplayName);
@@ -491,20 +491,16 @@
     });
   }
 
-  /**
-   * ???쒕ぉ???좏깮???곷? 罹먮┃???대쫫?쇰줈 ?ㅼ젙 (?붾㈃ ??????곷? ?대쫫 ?쒖떆)
-   */
+  /** Keeps the native page title unchanged. */
   function updatePageTitle() {
     // Keep original page title unchanged.
   }
 
-  /**
-   * 紐⑤뱺 硫붿떆吏???ㅽ궓 ?곸슜
-   */
+  /** Renders all currently discoverable messages for the active adapter. */
   function renderAll(adapter) {
     loadSettings(function (settings, userChars) {
       if (!settings.enabled) {
-        // 鍮꾪솢?깊솕 ??紐⑤뱺 ?ㅽ궓 ?쒓굅 諛??먮낯 蹂듭썝
+        // Skin disabled: remove rendered bubbles and restore native content.
         restoreAll();
         return;
       }
@@ -516,23 +512,21 @@
     });
   }
 
-  /**
-   * 紐⑤뱺 ?ㅽ궓 ?쒓굅?섍퀬 ?먮낯 蹂듭썝
-   */
+  /** Removes all rendered bubbles and restores the original message DOM. */
   function restoreAll() {
-    // ?ㅽ궓 而⑦뀒?대꼫(?대? 踰꾨툝 ?ы븿) ?쒓굅
+    // Remove all rendered bubble containers.
     var containers = document.querySelectorAll('.skin-bubble-container');
     for (var i = 0; i < containers.length; i++) {
       containers[i].remove();
     }
 
-    // ?④꺼吏??먮낯 ?붿냼 蹂듭썝 (?섑띁 ?ы븿)
+    // Unhide any source nodes that were hidden during rendering.
     var hiddenEls = document.querySelectorAll('.skin-original-hidden');
     for (var k = 0; k < hiddenEls.length; k++) {
       hiddenEls[k].classList.remove('skin-original-hidden');
     }
 
-    // data-skin-processed ?띿꽦 ?뺣━
+    // Clear render bookkeeping attributes.
     var processed = document.querySelectorAll('[data-skin-processed="true"]');
     for (var j = 0; j < processed.length; j++) {
       processed[j].removeAttribute('data-skin-processed');
@@ -540,17 +534,15 @@
     }
   }
 
-  /**
-   * 紐⑤뱺 硫붿떆吏瑜??ㅼ떆 ?뚮뜑留?(?ㅼ젙 蹂寃???
-   */
+  /** Restores everything, then renders again from the current DOM state. */
   function reRenderAll(adapter) {
     restoreAll();
     renderAll(adapter);
   }
 
   /**
-   * 硫붿떆吏 ?먮낯怨??곌껐???딄릿(?먮뒗 ?좏슚?섏? ?딆?) 怨좎븘 ?ㅽ궓 踰꾨툝 ?뺣━
-   * Gemini?먯꽌 placeholder turn???щ씪吏????⑤뒗 鍮?踰꾨툝/??댄븨 踰꾨툝 諛⑹???
+   * Removes stale bubble containers left behind by DOM churn or placeholder turns.
+   * Also upgrades stale typing bubbles to completed bubbles when streaming ends.
    */
   function cleanupStaleBubbles(adapter) {
     var containers = document.querySelectorAll('.skin-bubble-container');
@@ -570,12 +562,12 @@
 
         var sourceEl = document.querySelector('[data-skin-id="' + sourceId + '"]');
         if (!sourceEl) {
-          continue; // 怨좎븘 ?꾨낫
+          continue; // Source node disappeared.
         }
 
         hasLiveSource = true;
 
-        // ??댄븨 踰꾨툝?몃뜲 ?ㅼ젣 ?ㅽ듃由щ컢???앸궗?ㅻ㈃ stale濡??먮떒
+        // If a typing bubble remains after streaming ended, treat it as stale.
         var isTyping = wrap.getAttribute('data-skin-rendered') === 'typing';
         if (isTyping && adapter && adapter.isStreaming) {
           var stillStreaming = false;
@@ -585,7 +577,7 @@
 
           if (!stillStreaming) {
             removeContainer = true;
-            // 媛?ν븳 寃쎌슦 ?꾨즺 ?뚮뜑 ?쒕룄 (?댁슜???놁쑝硫??대??곸쑝濡?cancelRender??
+            // Remove the stale typing container and trigger a completed re-render.
             try {
               renderMessage(sourceEl, adapter, true);
             } catch (e2) {}
@@ -593,13 +585,13 @@
         }
       }
 
-      // ?뚯뒪媛 ?щ씪吏?怨좎븘 而⑦뀒?대꼫???쒓굅
+      // Remove containers whose source disappeared or that were marked stale above.
       if (!hasLiveSource || removeContainer) {
         container.remove();
         continue;
       }
 
-      // ?꾨즺 踰꾨툝 以??섎? ?녿뒗 踰꾨툝? 媛쒕퀎 ?쒓굅
+      // Drop complete bubbles whose content is now empty after sanitization.
       var completeWraps = container.querySelectorAll('.skin-bubble-wrap[data-skin-rendered="complete"]');
       for (var k = 0; k < completeWraps.length; k++) {
         var bubble = completeWraps[k].querySelector('.skin-bubble');
@@ -619,7 +611,7 @@
     }
   }
 
-  // 怨듦컻 API
+  // Public renderer API
   ns.renderer = {
     renderMessage: renderMessage,
     renderAll: renderAll,
