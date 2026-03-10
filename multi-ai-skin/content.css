@@ -555,3 +555,10 @@ model-response[data-skin-processed="true"] .presented-response-container .avatar
   display: none !important;
   visibility: hidden !important;
 }
+
+/* Claude user card shell: keep layout/hover, but remove native dark background behind skin bubble */
+div[class*="bg-bg-"]:has([data-testid="user-message"][data-skin-processed="true"]) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}

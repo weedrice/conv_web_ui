@@ -417,7 +417,8 @@
         if (adapter && adapter.getActionArea) {
           try {
             var actionArea = adapter.getActionArea(msgEl);
-            if (actionArea && actionArea.parentNode && isNodeAfter(wrapper, actionArea)) {
+            var isDescendantAnchor = !!(wrapper && wrapper.contains && wrapper.contains(actionArea));
+            if (actionArea && actionArea.parentNode && (isNodeAfter(wrapper, actionArea) || isDescendantAnchor)) {
               insertParent = actionArea.parentNode;
               insertPoint = actionArea;
             }

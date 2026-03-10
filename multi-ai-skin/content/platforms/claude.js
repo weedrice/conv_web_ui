@@ -115,7 +115,6 @@
       var user = getUserMessageFromTurn(turn);
       if (user) {
         out.push(user);
-        continue;
       }
 
       var assistant = getAssistantMessageFromTurn(turn);
@@ -322,11 +321,21 @@
     },
 
     getMessageWrapper: function (el) {
-      var turn = closestSelector(el, '[data-test-render-count]');
-      if (turn) return turn;
+      var role = this.getRole(el);
+      if (role === 'user') {
+        var userBody = getUserBodyNode(el);
+        if (userBody) {
+          return closestSelector(userBody, '[data-testid="user-message"]') || userBody;
+        }
+      }
 
-      var group = closestSelector(el, '.group');
-      if (group) return group;
+      if (role === 'assistant') {
+        var assistantBody = getAssistantBodyNode(el);
+        if (assistantBody) return assistantBody;
+      }
+
+      var turn = closestSelector(el, '[data-test-render-count]') || closestSelector(el, '.group');
+      if (turn) return turn;
 
       return el;
     },
@@ -339,11 +348,11 @@
       }
 
       if (role === 'user') {
-        var userShell = getClaudeUserBubbleShell(el);
-        if (userShell) return userShell;
-
         var userBody = getUserBodyNode(el);
-        return userBody || el;
+        if (userBody) return userBody;
+
+        var userShell = getClaudeUserBubbleShell(el);
+        return userShell || el;
       }
 
       return el;
