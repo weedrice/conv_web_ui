@@ -350,3 +350,12 @@ body.skin-platform-claude.skin-view-home [data-disclaimer="true"] {
   box-shadow: none !important;
   color: rgba(236, 241, 245, 0.88) !important;
 }
+
+/* Claude assistant message spacing */
+body:has([data-test-render-count]) .skin-bubble-wrap-assistant {
+  margin-bottom: 10px !important;
+}
+
+body.skin-platform-claude.skin-view-home .skin-bubble-wrap-assistant {
+  margin-bottom: 10px !important;
+}
