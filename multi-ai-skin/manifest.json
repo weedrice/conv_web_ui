@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "AI Chat Skin",
+  "name": "WUWA AI Chat",
   "version": "1.0.0",
-  "description": "Transform AI chat interfaces into character-based messenger style",
+  "description": "Wuthering Waves 기반의 캐릭터로 Chat GPT, Gemini, Claude Web UI를 변경해줍니다.",
   "permissions": ["storage"],
   "host_permissions": [
     "https://chatgpt.com/*",

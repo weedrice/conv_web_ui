@@ -20,6 +20,7 @@
     userGrid: document.getElementById('user-char-grid'),
     splitMaxChars: document.getElementById('split-max-chars'),
     addCharModal: document.getElementById('add-char-modal'),
+    addCharModalTitle: document.querySelector('#add-char-modal .popup-modal-title'),
     newCharName: document.getElementById('new-char-name'),
     newCharColor: document.getElementById('new-char-color'),
     newCharColorLabel: document.getElementById('new-char-color-label'),
@@ -220,6 +221,12 @@
     addCharTarget = side;
     pendingImageBase64 = null;
 
+    if (elements.addCharModalTitle) {
+      elements.addCharModalTitle.textContent = side === 'assistant'
+        ? '새 상대방 캐릭터 추가'
+        : '새 내 캐릭터 추가';
+    }
+
     elements.newCharName.value = '';
     elements.newCharColor.value = '#888888';
     elements.newCharColorLabel.textContent = '#888888';
@@ -237,6 +244,7 @@
   function saveNewCharacter() {
     var name = elements.newCharName.value.trim();
     var color = elements.newCharColor.value;
+    var target = addCharTarget || 'user';
 
     if (!name) {
       elements.newCharName.focus();
@@ -259,6 +267,7 @@
       id: 'user_char_' + Date.now(),
       name: name,
       color: color,
+      role: target,
       avatarBase64: pendingImageBase64,
       builtin: false
     };
@@ -267,13 +276,12 @@
       var userChars = data.userCharacters || [];
       userChars.push(newChar);
       chrome.storage.local.set({ userCharacters: userChars }, function () {
-        closeAddCharModal();
-
-        if (addCharTarget === 'assistant') {
+        if (target === 'assistant') {
           saveSettings({ assistantCharacterId: newChar.id });
         } else {
           saveSettings({ userCharacterId: newChar.id });
         }
+        closeAddCharModal();
         reloadUI();
       });
     });
