@@ -333,6 +333,86 @@ body.skin-platform-gemini.skin-view-home .card-container intent-card > button.ca
   fill: currentColor !important;
 }
 
+/* Improve readability in Gemini tool/editor surfaces (e.g. writing editor). */
+body.skin-platform-gemini .card-container intent-card > button.card,
+body.skin-platform-gemini .card-container intent-card > button.card.card-zero-state {
+  background: rgb(246, 249, 252) !important;
+  border: 1px solid rgb(183, 190, 198) !important;
+  color: rgb(22, 27, 33) !important;
+  box-shadow: 0 3px 10px rgba(44, 51, 58, 0.1) !important;
+}
+
+body.skin-platform-gemini .card-container intent-card > button.card:hover,
+body.skin-platform-gemini .card-container intent-card > button.card.card-zero-state:hover {
+  background: rgb(236, 242, 248) !important;
+  color: rgb(22, 27, 33) !important;
+}
+
+body.skin-platform-gemini .card-container intent-card > button.card:active,
+body.skin-platform-gemini .card-container intent-card > button.card.card-zero-state:active {
+  background: rgb(227, 235, 244) !important;
+}
+
+body.skin-platform-gemini .card-container intent-card > button.card .card-label,
+body.skin-platform-gemini .card-container intent-card > button.card p,
+body.skin-platform-gemini .card-container intent-card > button.card span,
+body.skin-platform-gemini .card-container intent-card > button.card mat-icon,
+body.skin-platform-gemini .card-container intent-card > button.card svg {
+  color: rgb(22, 27, 33) !important;
+  fill: currentColor !important;
+}
+
+/* Writing editor suggestion cards (prompt-suggestion-card-v2) */
+body.skin-platform-gemini prompt-suggestion-card-v2,
+body.skin-platform-gemini prompt-suggestion-card-v2 .regular-prompt-container[role="button"] {
+  background: rgb(246, 249, 252) !important;
+  background-color: rgb(246, 249, 252) !important;
+  border: 1px solid rgb(183, 190, 198) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 3px 10px rgba(44, 51, 58, 0.1) !important;
+}
+
+body.skin-platform-gemini prompt-suggestion-card-v2:hover,
+body.skin-platform-gemini prompt-suggestion-card-v2 .regular-prompt-container[role="button"]:hover {
+  background: rgb(236, 242, 248) !important;
+  background-color: rgb(236, 242, 248) !important;
+}
+
+body.skin-platform-gemini prompt-suggestion-card-v2:active,
+body.skin-platform-gemini prompt-suggestion-card-v2 .regular-prompt-container[role="button"]:active {
+  background: rgb(227, 235, 244) !important;
+  background-color: rgb(227, 235, 244) !important;
+}
+
+body.skin-platform-gemini prompt-suggestion-card-v2,
+body.skin-platform-gemini prompt-suggestion-card-v2 * {
+  color: rgb(22, 27, 33) !important;
+}
+
+/* Writing editor title readability */
+body.skin-platform-gemini .conversation-title.gds-title-m {
+  color: rgb(22, 27, 33) !important;
+}
+
+/* Composer send button contrast */
+body.skin-platform-gemini button.send-button.submit {
+  background: rgb(63, 69, 77) !important;
+  background-color: rgb(63, 69, 77) !important;
+  color: rgb(255, 255, 255) !important;
+  border: 1px solid rgb(63, 69, 77) !important;
+}
+
+body.skin-platform-gemini button.send-button.submit mat-icon.send-button-icon,
+body.skin-platform-gemini button.send-button.submit .send-button-icon,
+body.skin-platform-gemini button.send-button.submit .icon {
+  color: rgb(255, 255, 255) !important;
+  fill: currentColor !important;
+}
+
+body.skin-platform-gemini button.send-button.submit[aria-disabled="true"] {
+  opacity: 0.6 !important;
+}
+
 body.skin-platform-gemini.skin-view-home bard-mode-switcher .bard-text,
 body.skin-platform-gemini.skin-view-home top-bar-actions,
 body.skin-platform-gemini.skin-view-home top-bar-actions * {
