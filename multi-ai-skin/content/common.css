@@ -420,11 +420,15 @@ article + .skin-bubble-container .skin-bubble-wrap {
   background: rgba(255, 255, 255, 0.3);
 }
 
-
 user-query .skin-bubble-wrap-user {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
-  margin-bottom: 2px !important;
+  margin-bottom: 7px !important;
+}
+
+model-response .skin-bubble-wrap,
+model-response[data-skin-processed="true"] .skin-bubble-wrap {
+  margin-bottom: 9px !important;
 }
 
 user-query .skin-bubble-wrap-user .skin-avatar {
@@ -479,27 +483,11 @@ div[class*="bg-bg-"]:has([data-testid="user-message"][data-skin-processed="true"
 }
 
 .skin-bubble-wrap-assistant .skin-bubble::before {
-  content: '' !important;
-  position: absolute !important;
-  left: -8px !important;
-  top: 12px !important;
-  width: 14px !important;
-  height: 14px !important;
-  background: rgba(255, 255, 255, 1) !important;
-  border-radius: 3px !important;
-  transform: rotate(45deg) !important;
+  content: none !important;
 }
 
 .skin-bubble-wrap-user .skin-bubble-user::before {
-  content: '' !important;
-  position: absolute !important;
-  right: -8px !important;
-  top: 12px !important;
-  width: 14px !important;
-  height: 14px !important;
-  background: rgba(46, 51, 54, 1) !important;
-  border-radius: 3px !important;
-  transform: rotate(45deg) !important;
+  content: none !important;
 }
 
 

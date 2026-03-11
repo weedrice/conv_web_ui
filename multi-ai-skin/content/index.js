@@ -123,6 +123,81 @@
     }
   }
 
+  function syncGeminiUserActionButtons(adapter) {
+    if (!adapter || adapter.name !== 'gemini') return;
+
+    var queryContents = document.querySelectorAll('user-query[data-skin-processed="true"] .query-content');
+    if (!queryContents || queryContents.length === 0) return;
+
+    for (var i = 0; i < queryContents.length; i++) {
+      var queryContent = queryContents[i];
+      if (!queryContent || !queryContent.style) continue;
+
+      queryContent.style.setProperty('position', 'relative', 'important');
+
+      var bubbleCol = queryContent.querySelector('.skin-bubble-wrap-user .skin-content-col-user');
+      if (!bubbleCol) continue;
+
+      var qcRect = queryContent.getBoundingClientRect();
+      var bubbleRect = bubbleCol.getBoundingClientRect();
+      if (!qcRect || !bubbleRect) continue;
+
+      var wrappers = [];
+      var children = queryContent.children;
+      for (var c = 0; c < children.length; c++) {
+        if (children[c] && children[c].querySelector && children[c].querySelector('button.action-button')) {
+          wrappers.push(children[c]);
+        }
+      }
+      if (wrappers.length === 0) continue;
+
+      var bubbleTop = Math.max(0, bubbleRect.top - qcRect.top);
+      var bubbleHeight = Math.max(0, bubbleRect.height);
+      var bubbleLeft = Math.max(0, bubbleRect.left - qcRect.left);
+      var gap = 6;
+      var widths = [];
+      var heights = [];
+      var totalWidth = 0;
+
+      for (var w0 = 0; w0 < wrappers.length; w0++) {
+        var btn0 = wrappers[w0].querySelector('button.action-button');
+        var btnWidth0 = 28;
+        if (btn0) {
+          var btnRect0 = btn0.getBoundingClientRect();
+          if (btnRect0 && btnRect0.width) btnWidth0 = btnRect0.width;
+        }
+        widths.push(btnWidth0);
+        heights.push(28);
+        if (btn0) {
+          var btnRectH = btn0.getBoundingClientRect();
+          if (btnRectH && btnRectH.height) heights[w0] = btnRectH.height;
+        }
+        totalWidth += btnWidth0;
+      }
+      if (wrappers.length > 1) totalWidth += gap * (wrappers.length - 1);
+
+      var cursorLeft = Math.max(0, bubbleLeft - totalWidth - 8);
+
+      for (var w = 0; w < wrappers.length; w++) {
+        var wrap = wrappers[w];
+        var btn = wrap.querySelector('button.action-button');
+        var btnWidth = widths[w] || 28;
+        var btnHeight = heights[w] || 28;
+        var centeredTop = Math.max(0, bubbleTop + (bubbleHeight - btnHeight) / 2);
+        if (wrap.style) {
+          wrap.style.setProperty('position', 'absolute', 'important');
+          wrap.style.setProperty('top', centeredTop + 'px', 'important');
+          wrap.style.setProperty('left', Math.max(0, cursorLeft) + 'px', 'important');
+          wrap.style.setProperty('right', 'auto', 'important');
+          wrap.style.setProperty('margin', '0', 'important');
+          wrap.style.setProperty('padding', '0', 'important');
+          wrap.style.setProperty('z-index', '3', 'important');
+        }
+        cursorLeft += btnWidth + gap;
+      }
+    }
+  }
+
   function startChatGPTProjectThemeSync(adapter) {
     if (!adapter || adapter.name !== 'chatgpt') return;
 
@@ -154,6 +229,7 @@
     document.body.classList.toggle(VIEW_HOME_CLASS, nextIsHome);
     syncChatGPTProfileFooterBackground(adapter);
     syncChatGPTProjectHomeBackground(adapter);
+    syncGeminiUserActionButtons(adapter);
 
     if (prevIsChat !== nextIsChat || prevIsHome !== nextIsHome) {
       console.log('[AIChatSkin] View state changed:', {

@@ -380,6 +380,58 @@ body.skin-platform-gemini.skin-view-home input-area-v2 * {
   color: inherit !important;
 }
 
+/* Collapse residual native spacing under processed user-query blocks */
+user-query[data-skin-processed="true"] {
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+user-query[data-skin-processed="true"] > .user-query-container,
+user-query[data-skin-processed="true"] .user-query-container,
+user-query[data-skin-processed="true"] user-query-content.user-query-container,
+user-query[data-skin-processed="true"] .query-content {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+user-query[data-skin-processed="true"] .query-content.verticle-align-for-single-line-text,
+user-query[data-skin-processed="true"] .query-content.vertical-align-for-single-line-text {
+  align-items: flex-start !important;
+}
+
+/* Keep Gemini user hover action buttons close to the rendered bubble */
+user-query[data-skin-processed="true"] .query-content {
+  position: relative !important;
+}
+
+user-query[data-skin-processed="true"] .query-content > div:has(> button.action-button) {
+  position: absolute !important;
+  top: 4px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 3 !important;
+}
+
+user-query[data-skin-processed="true"] .query-content button.action-button {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+}
+
+user-query[data-skin-processed="true"] .query-content .skin-bubble-container {
+  margin-top: 0 !important;
+}
+
 body.skin-platform-gemini.skin-view-home .autosuggest-scrim,
 body.skin-platform-gemini.skin-view-home [style*="--sharp-edge-bottom-shadow"],
 body.skin-platform-gemini.skin-view-home [class*="bottom-shadow"],
