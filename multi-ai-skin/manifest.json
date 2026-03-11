@@ -3,6 +3,11 @@
   "name": "WUWA AI Chat",
   "version": "1.0.0",
   "description": "Wuthering Waves 기반의 캐릭터로 Chat GPT, Gemini, Claude Web UI를 변경해줍니다.",
+  "icons": {
+    "16": "logo.webp",
+    "48": "logo.webp",
+    "128": "logo.webp"
+  },
   "permissions": ["storage"],
   "host_permissions": [
     "https://chatgpt.com/*",
@@ -38,9 +43,9 @@
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
-      "16": "assets/characters/aemeath.webp",
-      "48": "assets/characters/aemeath.webp",
-      "128": "assets/characters/aemeath.webp"
+      "16": "logo.webp",
+      "48": "logo.webp",
+      "128": "logo.webp"
     }
   },
   "web_accessible_resources": [
