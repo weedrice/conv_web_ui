@@ -4,6 +4,8 @@
   var ns = (window.AIChatSkin = window.AIChatSkin || {});
   var VIEW_HOME_CLASS = 'skin-view-home';
   var VIEW_CHAT_CLASS = 'skin-view-chat';
+  var CHATGPT_PROFILE_BG_FALLBACK = 'rgba(63, 69, 77, 0.95)';
+  var projectThemeIntervalId = null;
 
   function detectPlatform() {
     var hostname = window.location.hostname;
@@ -17,6 +19,119 @@
     }
 
     return null;
+  }
+
+  function isTransparent(color) {
+    if (!color) return true;
+    return color === 'transparent' || color === 'rgba(0, 0, 0, 0)' || color === 'rgba(0,0,0,0)';
+  }
+
+  function syncChatGPTProfileFooterBackground(adapter) {
+    if (!adapter || adapter.name !== 'chatgpt') return;
+
+    var profileButtons = document.querySelectorAll('[data-testid="accounts-profile-button"]');
+    if (!profileButtons || profileButtons.length === 0) return;
+
+    for (var i = 0; i < profileButtons.length; i++) {
+      var button = profileButtons[i];
+      var sidebar = button.closest('aside') || document.querySelector('aside');
+      var bg = '';
+
+      if (sidebar && window.getComputedStyle) {
+        bg = window.getComputedStyle(sidebar).backgroundColor;
+      }
+      if (isTransparent(bg)) {
+        bg = CHATGPT_PROFILE_BG_FALLBACK;
+      }
+
+      var stickyContainer =
+        button.closest('.sticky.bottom-0') ||
+        button.closest('.bg-token-bg-elevated-secondary') ||
+        button.closest('[class*="bg-token-bg-elevated-secondary"]') ||
+        button.parentElement;
+
+      if (!stickyContainer || !stickyContainer.style) continue;
+
+      stickyContainer.style.setProperty('background', bg, 'important');
+      stickyContainer.style.setProperty('background-color', bg, 'important');
+
+      var relativeContainer = stickyContainer.querySelector(':scope > .relative');
+      if (relativeContainer && relativeContainer.style) {
+        relativeContainer.style.setProperty('background', bg, 'important');
+        relativeContainer.style.setProperty('background-color', bg, 'important');
+      }
+    }
+  }
+
+  function syncChatGPTProjectHomeBackground(adapter) {
+    if (!adapter || adapter.name !== 'chatgpt') return;
+
+    var topArea =
+      document.querySelector('.content-fade-top') ||
+      document.querySelector('.offset-padding-top-4.sticky.top-0');
+    if (!topArea || !topArea.style) return;
+    topArea.style.removeProperty('background');
+    topArea.style.removeProperty('background-color');
+
+    var topAreaParent = topArea.parentElement;
+    if (topAreaParent && topAreaParent.style) {
+      topAreaParent.style.removeProperty('background');
+      topAreaParent.style.removeProperty('background-color');
+    }
+
+    var surface = topArea.querySelector('[data-composer-surface="true"]');
+    if (surface && surface.style) {
+      surface.style.setProperty('background', 'rgb(248, 250, 252)', 'important');
+      surface.style.setProperty('background-color', 'rgb(248, 250, 252)', 'important');
+      surface.style.setProperty('border', '1px solid rgb(183, 190, 198)', 'important');
+      surface.style.setProperty('box-shadow', '0 8px 18px rgba(24, 31, 40, 0.08)', 'important');
+    }
+
+    // Force token-based dark surfaces inside project top area.
+    var brightNodes = topArea.querySelectorAll(
+      '[data-composer-surface="true"], .bg-token-bg-primary, [class*="bg-token-bg-primary"], [class*="bg-token-bg-elevated-secondary"]'
+    );
+    for (var j = 0; j < brightNodes.length; j++) {
+      var node = brightNodes[j];
+      if (!node || !node.style) continue;
+      node.style.setProperty('background', 'rgb(248, 250, 252)', 'important');
+      node.style.setProperty('background-color', 'rgb(248, 250, 252)', 'important');
+      node.style.setProperty('border-color', 'rgb(183, 190, 198)', 'important');
+    }
+
+    var tabs = topArea.querySelectorAll('[role="tab"]');
+    for (var i = 0; i < tabs.length; i++) {
+      var tab = tabs[i];
+      var state = tab.getAttribute('data-state');
+      if (!tab.style) continue;
+
+      if (state === 'active') {
+        tab.style.setProperty('background', 'rgb(255, 255, 255)', 'important');
+        tab.style.setProperty('color', 'rgba(22, 27, 33, 0.98)', 'important');
+        tab.style.setProperty('border', '1px solid rgb(183, 190, 198)', 'important');
+      } else {
+        tab.style.removeProperty('background');
+        tab.style.removeProperty('background-color');
+        tab.style.removeProperty('border');
+        tab.style.setProperty('color', 'rgba(78, 89, 102, 0.9)', 'important');
+      }
+    }
+
+    var title = topArea.querySelector('h1, h2');
+    if (title && title.style) {
+      title.style.setProperty('color', 'rgba(22, 27, 33, 0.96)', 'important');
+    }
+  }
+
+  function startChatGPTProjectThemeSync(adapter) {
+    if (!adapter || adapter.name !== 'chatgpt') return;
+
+    if (projectThemeIntervalId) {
+      clearInterval(projectThemeIntervalId);
+    }
+    projectThemeIntervalId = setInterval(function () {
+      syncChatGPTProjectHomeBackground(adapter);
+    }, 700);
   }
 
   function updateViewState(adapter) {
@@ -37,6 +152,8 @@
     document.body.classList.add('skin-platform-' + adapter.name);
     document.body.classList.toggle(VIEW_CHAT_CLASS, nextIsChat);
     document.body.classList.toggle(VIEW_HOME_CLASS, nextIsHome);
+    syncChatGPTProfileFooterBackground(adapter);
+    syncChatGPTProjectHomeBackground(adapter);
 
     if (prevIsChat !== nextIsChat || prevIsHome !== nextIsHome) {
       console.log('[AIChatSkin] View state changed:', {
@@ -79,6 +196,7 @@
     ns.updateViewState = updateViewState;
 
     updateViewState(adapter);
+    startChatGPTProjectThemeSync(adapter);
 
     setupStorageListener(adapter);
     ns.observer.startObserving(adapter);

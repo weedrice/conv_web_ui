@@ -21,7 +21,8 @@ body:has([data-testid^="conversation-turn-"]) [data-testid="conversation-turn-0"
   background: linear-gradient(180deg, var(--skin-shell-bg-soft) 0%, var(--skin-shell-bg) 100%) !important;
 }
 
-body:has([data-testid^="conversation-turn-"]) header,
+body:has([data-testid^="conversation-turn-"]) #page-header,
+body:has([data-testid^="conversation-turn-"]) header[role="banner"],
 body:has([data-testid^="conversation-turn-"]) [role="banner"] {
   background: linear-gradient(
     90deg,
@@ -55,8 +56,8 @@ body:has([data-testid^="conversation-turn-"]) div[class*="bg-token-bg-elevated-s
 body:has([data-testid^="conversation-turn-"]) div[data-sidebar-item="true"],
 body:has([data-testid^="conversation-turn-"]) div[data-sidebar-item="true"] > div,
 body:has([data-testid^="conversation-turn-"]) div[data-sidebar-item="true"] > div > div {
-  background: var(--skin-sidebar-bg) !important;
-  background-color: var(--skin-sidebar-bg) !important;
+  background: rgba(63, 69, 77, 0.95) !important;
+  background-color: rgba(63, 69, 77, 0.95) !important;
 }
 
 body:has([data-testid^="conversation-turn-"]) aside a,
@@ -162,7 +163,8 @@ body.skin-platform-chatgpt.skin-view-home [class*="react-scroll-to-bottom"] {
   background: linear-gradient(180deg, var(--skin-shell-bg-soft) 0%, var(--skin-shell-bg) 100%) !important;
 }
 
-body.skin-platform-chatgpt.skin-view-home header,
+body.skin-platform-chatgpt.skin-view-home #page-header,
+body.skin-platform-chatgpt.skin-view-home header[role="banner"],
 body.skin-platform-chatgpt.skin-view-home [role="banner"] {
   background: linear-gradient(
     90deg,
@@ -174,20 +176,19 @@ body.skin-platform-chatgpt.skin-view-home [role="banner"] {
   border-radius: 0 !important;
 }
 
-body.skin-platform-chatgpt.skin-view-home header,
-body.skin-platform-chatgpt.skin-view-home [role="banner"],
 body.skin-platform-chatgpt.skin-view-home #page-header,
 body.skin-platform-chatgpt.skin-view-home #page-header *,
-body.skin-platform-chatgpt.skin-view-home header button,
-body.skin-platform-chatgpt.skin-view-home header a,
-body.skin-platform-chatgpt.skin-view-home header svg,
+body.skin-platform-chatgpt.skin-view-home header[role="banner"],
+body.skin-platform-chatgpt.skin-view-home header[role="banner"] button,
+body.skin-platform-chatgpt.skin-view-home header[role="banner"] a,
+body.skin-platform-chatgpt.skin-view-home header[role="banner"] svg,
 body.skin-platform-chatgpt.skin-view-home [role="banner"] button,
 body.skin-platform-chatgpt.skin-view-home [role="banner"] a,
 body.skin-platform-chatgpt.skin-view-home [role="banner"] svg {
   color: rgba(46, 51, 54, 1) !important;
 }
 
-body.skin-platform-chatgpt.skin-view-home header svg,
+body.skin-platform-chatgpt.skin-view-home header[role="banner"] svg,
 body.skin-platform-chatgpt.skin-view-home [role="banner"] svg,
 body.skin-platform-chatgpt.skin-view-home #page-header svg {
   fill: currentColor !important;
@@ -216,8 +217,8 @@ body.skin-platform-chatgpt.skin-view-home div[class*="bg-token-bg-elevated-secon
 body.skin-platform-chatgpt.skin-view-home div[data-sidebar-item="true"],
 body.skin-platform-chatgpt.skin-view-home div[data-sidebar-item="true"] > div,
 body.skin-platform-chatgpt.skin-view-home div[data-sidebar-item="true"] > div > div {
-  background: var(--skin-sidebar-bg) !important;
-  background-color: var(--skin-sidebar-bg) !important;
+  background: rgba(63, 69, 77, 0.95) !important;
+  background-color: rgba(63, 69, 77, 0.95) !important;
 }
 
 body.skin-platform-chatgpt.skin-view-home aside a,
@@ -268,8 +269,205 @@ body.skin-platform-chatgpt.skin-view-home [role="button"][class*="rounded"] {
   border-radius: 14px !important;
 }
 
+/* Project home top area (no conversation turns yet). */
+body.skin-platform-chatgpt .content-fade-top,
+body.skin-platform-chatgpt .offset-padding-top-4.sticky.top-0 {
+  background: linear-gradient(180deg, rgb(223, 228, 232) 0%, rgb(223, 228, 232) 70%, rgb(214, 220, 226) 100%) !important;
+  background-color: rgb(223, 228, 232) !important;
+}
+
+body.skin-platform-chatgpt .content-fade-top h1,
+body.skin-platform-chatgpt .content-fade-top h2,
+body.skin-platform-chatgpt .content-fade-top [role="tablist"],
+body.skin-platform-chatgpt .content-fade-top [role="tab"] {
+  color: rgba(46, 51, 54, 0.96) !important;
+}
+
+body.skin-platform-chatgpt .content-fade-top [data-composer-surface="true"] {
+  background: rgb(248, 250, 252) !important;
+  border: 1px solid rgb(183, 190, 198) !important;
+  box-shadow: 0 8px 18px rgba(24, 31, 40, 0.08) !important;
+}
+
+body.skin-platform-chatgpt .content-fade-top [data-composer-surface="true"] .ProseMirror,
+body.skin-platform-chatgpt .content-fade-top [data-composer-surface="true"] textarea,
+body.skin-platform-chatgpt .content-fade-top [data-composer-surface="true"] button {
+  color: rgba(46, 51, 54, 0.95) !important;
+}
+
+body.skin-platform-chatgpt .content-fade-top [role="tab"][data-state="active"] {
+  background: rgb(255, 255, 255) !important;
+  color: rgba(22, 27, 33, 0.98) !important;
+  border: 1px solid rgb(183, 190, 198) !important;
+}
+
+body.skin-platform-chatgpt .content-fade-top [role="tab"][data-state="inactive"] {
+  color: rgba(78, 89, 102, 0.9) !important;
+}
+
+body.skin-platform-chatgpt .content-fade-top [role="tab"][data-state="inactive"]:hover {
+  background: rgba(255, 255, 255, 0.55) !important;
+  color: rgba(31, 40, 52, 0.95) !important;
+}
+
 body:has([data-testid^="conversation-turn-"]) .skin-bubble-wrap-assistant,
 body:has([data-testid^="conversation-turn"]) .skin-bubble-wrap-assistant {
   gap: 14px !important;
   margin-bottom: 12px !important;
+}
+
+/* Hard override for ChatGPT project home top panel. */
+body [class*="offset-padding-top-4"][class*="content-fade-top"],
+body .content-fade-top {
+  background: linear-gradient(180deg, rgb(223, 228, 232) 0%, rgb(223, 228, 232) 70%, rgb(214, 220, 226) 100%) !important;
+  background-color: rgb(223, 228, 232) !important;
+}
+
+body [class*="mt-13"]:has(> [class*="content-fade-top"]) {
+  background: linear-gradient(180deg, rgb(223, 228, 232) 0%, rgb(223, 228, 232) 70%, rgb(214, 220, 226) 100%) !important;
+  background-color: rgb(223, 228, 232) !important;
+}
+
+body .content-fade-top [data-composer-surface="true"] {
+  background: rgb(248, 250, 252) !important;
+  background-color: rgb(248, 250, 252) !important;
+  border: 1px solid rgb(183, 190, 198) !important;
+}
+
+body .content-fade-top [role="tab"][data-state="active"] {
+  background: rgb(255, 255, 255) !important;
+  border: 1px solid rgb(183, 190, 198) !important;
+}
+
+/* Project chats list text color override */
+body [role="tabpanel"][id*="content-chats"],
+body [role="tabpanel"][id*="content-chats"] a,
+body [role="tabpanel"][id*="content-chats"] li[class*="project-item"] {
+  color: rgb(22, 27, 33) !important;
+}
+
+body [role="tabpanel"][id*="content-chats"] .text-token-text-secondary,
+body [role="tabpanel"][id*="content-chats"] .text-token-text-tertiary,
+body [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-date"],
+body [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-menu"],
+body [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-menu"] svg,
+body [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-menu"] .icon {
+  color: rgb(58, 66, 77) !important;
+  fill: currentColor !important;
+}
+
+/* Project chats list item surface */
+body [role="tabpanel"][id*="content-chats"] li[class*="project-item"] {
+  background: rgb(245, 248, 251) !important;
+  border-bottom: 1px solid rgb(224, 229, 235) !important;
+}
+
+body [role="tabpanel"][id*="content-chats"] li[class*="project-item"]:hover {
+  background: rgb(236, 242, 248) !important;
+}
+
+body [role="tabpanel"][id*="content-chats"] li[class*="project-item"]:active,
+body [role="tabpanel"][id*="content-chats"] li[class*="project-item"][aria-current="page"] {
+  background: rgb(227, 235, 244) !important;
+}
+
+/* Project top composer surface */
+body .content-fade-top [data-type="unified-composer"] [data-composer-surface="true"] {
+  background: rgb(248, 250, 252) !important;
+  background-color: rgb(248, 250, 252) !important;
+  border: 1px solid rgb(183, 190, 198) !important;
+  box-shadow: 0 8px 18px rgba(24, 31, 40, 0.08) !important;
+}
+
+body .content-fade-top [data-type="unified-composer"] .ProseMirror,
+body .content-fade-top [data-type="unified-composer"] textarea,
+body .content-fade-top [data-type="unified-composer"] [contenteditable="true"],
+body .content-fade-top [data-type="unified-composer"] .composer-btn,
+body .content-fade-top [data-type="unified-composer"] button {
+  color: rgb(22, 27, 33) !important;
+}
+
+body .content-fade-top [data-type="unified-composer"] [contenteditable="true"] p[data-placeholder]::before {
+  color: rgb(108, 118, 130) !important;
+}
+
+/* Composer speech button contrast */
+body button[data-testid="composer-speech-button"] {
+  background: rgb(63, 69, 77) !important;
+  background-color: rgb(63, 69, 77) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+body button[data-testid="composer-speech-button"] svg,
+body button[data-testid="composer-speech-button"] .icon,
+body button[data-testid="composer-speech-button"] use {
+  color: rgb(255, 255, 255) !important;
+  fill: currentColor !important;
+}
+
+/* Project container background (wrapper layers around chats tabpanel) */
+body div:has(> .content-fade-top):has(> [role="tabpanel"][id*="content-chats"]),
+body div:has(> .content-fade-top):has(> div[role="tabpanel"][id*="content-chats"]),
+body [role="tabpanel"][id*="content-chats"],
+body [role="tabpanel"][id*="content-chats"] > div,
+body [role="tabpanel"][id*="content-chats"] > div > div,
+body [role="tabpanel"][id*="content-chats"] section,
+body [role="tabpanel"][id*="content-chats"] ol {
+  background: rgb(223, 228, 232) !important;
+  background-color: rgb(223, 228, 232) !important;
+}
+
+body .content-fade-top::before,
+body .content-fade-top::after {
+  background: transparent !important;
+}
+
+/* Project "Sources" tab readability */
+body [role="tabpanel"][id*="content-sources"][data-state="active"],
+body [role="tabpanel"][id*="content-sources"][data-state="active"] > div,
+body [role="tabpanel"][id*="content-sources"][data-state="active"] section {
+  background: rgb(223, 228, 232) !important;
+  background-color: rgb(223, 228, 232) !important;
+  color: rgb(22, 27, 33) !important;
+}
+
+body [role="tabpanel"][id*="content-sources"][data-state="active"] h1,
+body [role="tabpanel"][id*="content-sources"][data-state="active"] h2,
+body [role="tabpanel"][id*="content-sources"][data-state="active"] h3,
+body [role="tabpanel"][id*="content-sources"][data-state="active"] p,
+body [role="tabpanel"][id*="content-sources"][data-state="active"] span,
+body [role="tabpanel"][id*="content-sources"][data-state="active"] div,
+body [role="tabpanel"][id*="content-sources"][data-state="active"] a {
+  color: rgb(22, 27, 33) !important;
+}
+
+body [role="tabpanel"][id*="content-sources"][data-state="active"] .text-token-text-secondary,
+body [role="tabpanel"][id*="content-sources"][data-state="active"] .text-token-text-tertiary,
+body [role="tabpanel"][id*="content-sources"][data-state="active"] [class*="text-token-text-secondary"],
+body [role="tabpanel"][id*="content-sources"][data-state="active"] [class*="text-token-text-tertiary"] {
+  color: rgb(78, 89, 102) !important;
+}
+
+body [role="tabpanel"][id*="content-sources"][data-state="active"] button,
+body [role="tabpanel"][id*="content-sources"][data-state="active"] [role="button"] {
+  color: rgb(22, 27, 33) !important;
+}
+
+body [role="tabpanel"][id*="content-sources"][data-state="active"] button[class*="rounded"],
+body [role="tabpanel"][id*="content-sources"][data-state="active"] [role="button"][class*="rounded"] {
+  background: rgb(245, 248, 251) !important;
+  border: 1px solid rgb(183, 190, 198) !important;
+}
+
+body div:has(> [role="tabpanel"][id*="content-sources"][data-state="active"]) [class*="text-token-text-tertiary"],
+body div:has(> [role="tabpanel"][id*="content-sources"][data-state="active"]) [class*="text-token-text-secondary"] {
+  color: rgb(78, 89, 102) !important;
+}
+
+/* Keep tab strip area visually flat */
+body [role="tablist"][aria-label*="프로젝트 섹션"],
+body [role="tablist"][aria-label*="Project section"],
+body [role="tablist"][id*="project-home-tabs"] {
+  background: transparent !important;
+  box-shadow: none !important;
 }
