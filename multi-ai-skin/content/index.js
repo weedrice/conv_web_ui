@@ -5,7 +5,9 @@
   var VIEW_HOME_CLASS = 'skin-view-home';
   var VIEW_CHAT_CLASS = 'skin-view-chat';
   var CHATGPT_PROFILE_BG_FALLBACK = 'rgba(63, 69, 77, 0.95)';
-  var projectThemeIntervalId = null;
+  var projectThemeObserver = null;
+  var projectThemeDebounceId = null;
+  var projectThemeVisibilityHooked = false;
 
   function detectPlatform() {
     var hostname = window.location.hostname;
@@ -198,15 +200,51 @@
     }
   }
 
+  function shouldRunChatGPTProjectThemeSync(adapter) {
+    if (!adapter || adapter.name !== 'chatgpt') return false;
+    if (!document.body) return false;
+    if (document.visibilityState === 'hidden') return false;
+    return document.body.classList.contains(VIEW_HOME_CLASS);
+  }
+
+  function queueChatGPTProjectThemeSync(adapter) {
+    if (!shouldRunChatGPTProjectThemeSync(adapter)) return;
+
+    if (projectThemeDebounceId) {
+      clearTimeout(projectThemeDebounceId);
+    }
+
+    projectThemeDebounceId = setTimeout(function () {
+      syncChatGPTProjectHomeBackground(adapter);
+    }, 120);
+  }
+
   function startChatGPTProjectThemeSync(adapter) {
     if (!adapter || adapter.name !== 'chatgpt') return;
 
-    if (projectThemeIntervalId) {
-      clearInterval(projectThemeIntervalId);
+    if (projectThemeObserver) {
+      projectThemeObserver.disconnect();
+      projectThemeObserver = null;
     }
-    projectThemeIntervalId = setInterval(function () {
-      syncChatGPTProjectHomeBackground(adapter);
-    }, 700);
+
+    queueChatGPTProjectThemeSync(adapter);
+
+    if (!document.body) return;
+
+    projectThemeObserver = new MutationObserver(function () {
+      queueChatGPTProjectThemeSync(adapter);
+    });
+    projectThemeObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    if (!projectThemeVisibilityHooked) {
+      document.addEventListener('visibilitychange', function () {
+        queueChatGPTProjectThemeSync(adapter);
+      });
+      projectThemeVisibilityHooked = true;
+    }
   }
 
   function updateViewState(adapter) {
@@ -228,7 +266,7 @@
     document.body.classList.toggle(VIEW_CHAT_CLASS, nextIsChat);
     document.body.classList.toggle(VIEW_HOME_CLASS, nextIsHome);
     syncChatGPTProfileFooterBackground(adapter);
-    syncChatGPTProjectHomeBackground(adapter);
+    queueChatGPTProjectThemeSync(adapter);
     syncGeminiUserActionButtons(adapter);
 
     if (prevIsChat !== nextIsChat || prevIsHome !== nextIsHome) {

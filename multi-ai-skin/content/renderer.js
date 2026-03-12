@@ -335,7 +335,7 @@
    * @param {Object} adapter Platform adapter.
    * @param {boolean} forceComplete If true, bypass streaming state and render as complete.
    */
-  function renderMessage(msgEl, adapter, forceComplete) {
+  function renderMessage(msgEl, adapter, forceComplete, preloadedSettings, preloadedUserChars) {
     // Skip messages that were already processed unless a full re-render is requested.
     if (msgEl.getAttribute('data-skin-processed') === 'true') {
       // forceComplete is used when a stale typing bubble must become a final bubble.
@@ -396,7 +396,7 @@
       showOriginal(msgEl, adapter, role);
     }
 
-    loadSettings(function (settings, userChars) {
+    function proceedRender(settings, userChars) {
       if (!settings.enabled) {
         // Skin disabled: restore native UI and stop.
         cancelRender();
@@ -499,7 +499,13 @@
         wrap.appendChild(userBubble);
         userInsertParent.insertBefore(wrap, userInsertPoint);
       }
-    });
+    }
+
+    if (preloadedSettings) {
+      proceedRender(preloadedSettings, preloadedUserChars || []);
+    } else {
+      loadSettings(proceedRender);
+    }
   }
 
   /** Keeps the native page title unchanged. */
@@ -518,7 +524,7 @@
 
       var messages = adapter.getMessages();
       for (var i = 0; i < messages.length; i++) {
-        renderMessage(messages[i], adapter);
+        renderMessage(messages[i], adapter, false, settings, userChars);
       }
     });
   }
