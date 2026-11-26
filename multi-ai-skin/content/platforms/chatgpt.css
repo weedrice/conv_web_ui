@@ -1,272 +1,172 @@
-﻿body:has([data-testid^="conversation-turn-"]) {
-  --skin-shell-bg: rgba(223, 228, 232, 1);
-  --skin-shell-bg-soft: rgba(223, 228, 232, 1);
-  --skin-shell-header-left: rgba(223, 228, 231, 1);
-  --skin-shell-header-right: rgba(184, 189, 192, 1);
-  --skin-shell-border: #b7bec6;
-  --skin-action-fg: #4e5966;
-  --skin-action-fg-hover: #1f2834;
-  --skin-action-bg-hover: rgba(255, 255, 255, 0.75);
-  --skin-sidebar-bg: rgba(63, 69, 77, 0.95);
-  --skin-sidebar-panel: rgba(154, 161, 168, 0.38);
-  --skin-sidebar-text: rgba(238, 242, 246, 0.95);
-  --skin-sidebar-text-muted: rgba(214, 220, 226, 0.74);
-  --skin-sidebar-border: rgba(255, 255, 255, 0.58);
+/* The thread stays light in either ChatGPT appearance. The navigation rail
+   has its own palette; dialogs outside the thread keep the site's theme. */
+body.skin-platform-chatgpt {
+  --skin-shell-bg: #dfe4e8;
+  --skin-panel: #f9fafb;
+  --skin-ink: #202830;
+  --skin-muted: #495766;
+  --skin-line: #abb6c0;
+  --skin-sidebar-bg: #343b44;
+  --skin-sidebar-hover: #414a55;
+  --skin-sidebar-selected: #505c69;
+  --skin-sidebar-text: #f4f6f8;
+  --skin-sidebar-muted: #c4ced7;
+  --skin-action-fg: var(--skin-muted);
+  --skin-action-fg-hover: var(--skin-ink);
   background-color: var(--skin-shell-bg) !important;
 }
 
-body:has([data-testid^="conversation-turn-"]) main,
-body:has([data-testid^="conversation-turn-"]) [class*="react-scroll-to-bottom"],
-body:has([data-testid^="conversation-turn-"]) [data-testid="conversation-turn-0"]::before {
-  background: linear-gradient(180deg, var(--skin-shell-bg-soft) 0%, var(--skin-shell-bg) 100%) !important;
-}
-
-body:has([data-testid^="conversation-turn-"]) #page-header,
-body:has([data-testid^="conversation-turn-"]) header[role="banner"],
-body:has([data-testid^="conversation-turn-"]) [role="banner"] {
-  background: linear-gradient(
-    90deg,
-    var(--skin-shell-header-left) 0%,
-    var(--skin-shell-header-left) 20%,
-    var(--skin-shell-header-right) 100%
-  ) !important;
-  border: 1px solid rgba(255, 255, 255, 1) !important;
-  border-radius: 0 !important;
-}
-
-body:has([data-testid^="conversation-turn-"]) #thread-bottom-container,
-body:has([data-testid^="conversation-turn-"]) #thread-bottom-container > div,
-body:has([data-testid^="conversation-turn-"]) #thread-bottom {
+body.skin-platform-chatgpt main {
   background: var(--skin-shell-bg) !important;
 }
 
-body:has([data-testid^="conversation-turn-"]) aside,
-body:has([data-testid^="conversation-turn-"]) [class*="sidebar"] {
+body.skin-platform-chatgpt :is([data-rail-chat-transcript], [data-thread-find-target="conversation"]) {
+  color: var(--skin-ink);
+  --color-text: var(--skin-ink);
+  --color-text-secondary: var(--skin-muted);
+}
+
+/* Set the paint color on the fade itself; its position and hit testing belong to ChatGPT. */
+body.skin-platform-chatgpt main [class~="text-surface"][class*="--app-shell-content-fade"] {
+  color: var(--skin-shell-bg) !important;
+}
+body.skin-platform-chatgpt :is([data-app-shell-titlebar], #page-header, main header[role="banner"]) {
+  --color-text: var(--skin-ink);
+  --color-text-secondary: var(--skin-muted);
+  color: var(--skin-ink) !important;
+  background: var(--skin-shell-bg) !important;
+  border-bottom: 1px solid #c5cdd4;
+}
+
+body.skin-platform-chatgpt :is(aside, [data-testid="sidebar"], [data-sidebar-navigation-root], [data-slate-sidebar-content]) {
+  --app-shell-sidebar-docked-background: var(--skin-sidebar-bg);
+  --color-surface: var(--skin-sidebar-bg);
+  --color-text: var(--skin-sidebar-text);
+  --color-text-secondary: var(--skin-sidebar-muted);
+  --color-text-tertiary: var(--skin-sidebar-muted);
+  --color-text-emphasis: white;
+  --color-background-secondary-ghost-hover: var(--skin-sidebar-hover);
+  color: var(--skin-sidebar-text) !important;
   background: var(--skin-sidebar-bg) !important;
+}
+body.skin-platform-chatgpt :is(aside, [data-sidebar-navigation-root]) :is([data-thread-title], a[href*="/c/"]) {
+  color: var(--skin-sidebar-text);
+}
+
+/* Paint only the interactive row. Its list item remains a layout container. */
+body.skin-platform-chatgpt :is(aside, [data-sidebar-navigation-root]) :is([data-sidebar-cycle-item], li > a[href*="/c/"]) {
+  border: 0 !important;
+  border-radius: 8px;
+  background-color: transparent !important;
+}
+body.skin-platform-chatgpt :is(aside, [data-sidebar-navigation-root]) :is([data-sidebar-cycle-item], li > a[href*="/c/"]):hover {
+  background-color: var(--skin-sidebar-hover) !important;
+}
+body.skin-platform-chatgpt :is(aside, [data-sidebar-navigation-root]) :is([data-sidebar-cycle-item][aria-current="page"], [data-sidebar-cycle-item]:has(a[aria-current="page"]), li > a[aria-current="page"]) {
+  background-color: var(--skin-sidebar-selected) !important;
+}
+body.skin-platform-chatgpt :is(aside, [data-sidebar-navigation-root]) a:focus-visible {
+  outline: 2px solid #b5d9ff;
+  outline-offset: -2px;
+}
+body.skin-platform-chatgpt aside :is([data-testid="accounts-profile-button"], .sticky:has([data-testid="accounts-profile-button"])) {
+  background-color: var(--skin-sidebar-bg) !important;
   color: var(--skin-sidebar-text) !important;
 }
 
-body:has([data-testid^="conversation-turn-"]) [data-testid="accounts-profile-button"],
-body:has([data-testid^="conversation-turn-"]) [data-testid="accounts-profile-button"]::before,
-body:has([data-testid^="conversation-turn-"]) .bg-token-bg-elevated-secondary,
-body:has([data-testid^="conversation-turn-"]) .bg-token-bg-elevated-secondary > .relative,
-body:has([data-testid^="conversation-turn-"]) .bg-token-bg-elevated-secondary > div,
-body:has([data-testid^="conversation-turn-"]) .sticky.bottom-0.z-30.py-1\\.5.empty\\:hidden,
-body:has([data-testid^="conversation-turn-"]) div[class*="bg-token-bg-elevated-secondary"],
-body:has([data-testid^="conversation-turn-"]) div[data-sidebar-item="true"],
-body:has([data-testid^="conversation-turn-"]) div[data-sidebar-item="true"] > div,
-body:has([data-testid^="conversation-turn-"]) div[data-sidebar-item="true"] > div > div {
-  background: rgba(63, 69, 77, 0.95) !important;
-  background-color: rgba(63, 69, 77, 0.95) !important;
+/* Rich responses establish their own theme boundary, including inside the transcript. */
+body.skin-platform-chatgpt :is([data-rail-chat-transcript], [data-thread-find-target="conversation"]) [data-dil-response] {
+  --color-text-prose: var(--skin-ink);
+  --color-text: var(--skin-ink);
+  --color-text-emphasis: var(--skin-ink);
+  --color-text-secondary: var(--skin-muted);
+  --color-text-tertiary: var(--skin-muted);
 }
-
-body:has([data-testid^="conversation-turn-"]) aside a,
-body:has([data-testid^="conversation-turn-"]) aside button {
-  color: var(--skin-sidebar-text) !important;
+body.skin-platform-chatgpt [data-rail-chat-transcript] {
+  --color-text-tertiary: var(--skin-muted);
+  --color-text-emphasis: var(--skin-ink);
 }
-
-body:has([data-testid^="conversation-turn-"]) aside li,
-body:has([data-testid^="conversation-turn-"]) aside [role="listitem"],
-body:has([data-testid^="conversation-turn-"]) aside [data-testid*="history"],
-body:has([data-testid^="conversation-turn-"]) aside [data-testid*="conversation"] {
-  background: var(--skin-sidebar-panel) !important;
-  border: 1px solid var(--skin-sidebar-border) !important;
-  border-radius: 10px !important;
-  backdrop-filter: blur(1.5px) !important;
+body.skin-platform-chatgpt [data-app-shell-titlebar] :is(.text-default, button, svg) {
+  color: var(--skin-ink) !important;
 }
-
-body:has([data-testid^="conversation-turn-"]) aside .text-token-text-secondary,
-body:has([data-testid^="conversation-turn-"]) aside [class*="secondary"] {
-  color: var(--skin-sidebar-text-muted) !important;
-}
-
-[data-testid="copy-turn-action-button"],
-[data-testid="good-response-turn-action-button"],
-[data-testid="bad-response-turn-action-button"],
-[data-testid="retry-button"],
-[data-testid^="conversation-turn-"] .text-token-text-secondary,
-[data-testid^="conversation-turn"] .text-token-text-secondary,
-[data-testid^="conversation-turn-"] button[aria-label*="Edit"],
-[data-testid^="conversation-turn-"] button[aria-label*="Share"],
-[data-testid^="conversation-turn-"] button[aria-label*="More"] {
-  color: var(--skin-action-fg) !important;
-}
-
-[data-testid^="conversation-turn-"] .text-token-text-secondary .icon,
-[data-testid^="conversation-turn"] .text-token-text-secondary .icon,
-[data-testid^="conversation-turn-"] .text-token-text-secondary svg,
-[data-testid^="conversation-turn"] .text-token-text-secondary svg {
+body.skin-platform-chatgpt [data-chatgpt-composer] button svg {
   color: inherit !important;
-  fill: currentColor !important;
 }
 
-[data-testid="copy-turn-action-button"]:hover,
-[data-testid="good-response-turn-action-button"]:hover,
-[data-testid="bad-response-turn-action-button"]:hover,
-[data-testid="retry-button"]:hover,
-[data-testid^="conversation-turn-"] .text-token-text-secondary:hover,
-[data-testid^="conversation-turn"] .text-token-text-secondary:hover,
-[data-testid^="conversation-turn-"] button[aria-label*="Edit"]:hover,
-[data-testid^="conversation-turn-"] button[aria-label*="Share"]:hover,
-[data-testid^="conversation-turn-"] button[aria-label*="More"]:hover {
-  color: var(--skin-action-fg-hover) !important;
-  background: var(--skin-action-bg-hover) !important;
-  border-radius: 8px !important;
+/* Source chips keep the site's original click, focus and popover handlers. */
+body.skin-platform-chatgpt :is([data-response-body], [data-message-author-role="assistant"], .skin-bubble) :is(
+  [data-d-component="popover-trigger"] [data-d-component="badge"][data-pill],
+  [data-testid="webpage-citation-pill"], .citation-pill
+) {
+  --badge-background-color: #e8f1fa;
+  --badge-text-color: #234462;
+  background: var(--badge-background-color) !important;
+  color: var(--badge-text-color) !important;
+  -webkit-text-fill-color: currentColor;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px #abbdce;
+  font-size: 12px;
+}
+body.skin-platform-chatgpt [data-d-component="popover-trigger"] [data-pill] [data-d-component="text"] {
+  color: inherit !important;
+  font-size: inherit;
+}
+body.skin-platform-chatgpt :is([data-d-component="popover-trigger"], [data-testid="webpage-citation-pill"], .citation-pill):focus-visible {
+  outline: 2px solid #316b9c;
+  outline-offset: 2px;
+}
+body.skin-platform-chatgpt [data-d-component="popover-trigger"]:is(:hover, :focus-visible, [aria-expanded="true"]) [data-d-component="badge"][data-pill] {
+  --badge-background-color: #d8e7f4;
+  box-shadow: inset 0 0 0 1px #7091ac;
 }
 
-body:has([data-testid^="conversation-turn-"]) #page-header .text-token-text-tertiary,
-body:has([data-testid^="conversation-turn-"]) #page-header .icon-sm.text-token-text-tertiary,
-body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="model-switcher-dropdown-button"],
-body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="share-chat-button"],
-body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="conversation-options-button"],
-body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Share"],
-body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Conversation options"] {
-  color: var(--skin-action-fg) !important;
+/* The native sticky footer paints its backdrop with pseudo-elements on the parent. */
+body.skin-platform-chatgpt :is(main div:has(> [data-thread-scroll-footer]), #thread-bottom-container, #thread-bottom) {
+  --color-surface: var(--skin-shell-bg);
 }
-
-body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="model-switcher-dropdown-button"]:hover,
-body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="share-chat-button"]:hover,
-body:has([data-testid^="conversation-turn-"]) #page-header [data-testid="conversation-options-button"]:hover,
-body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Share"]:hover,
-body:has([data-testid^="conversation-turn-"]) #page-header button[aria-label*="Conversation options"]:hover {
-  color: var(--skin-action-fg-hover) !important;
-  background: var(--skin-action-bg-hover) !important;
-}
-
-body:has([data-testid^="conversation-turn-"]) footer,
-body:has([data-testid^="conversation-turn-"]) footer *,
-body:has([data-testid^="conversation-turn-"]) [class*="disclaimer"],
-body:has([data-testid^="conversation-turn-"]) [class*="disclaimer"] *,
-body:has([data-testid^="conversation-turn-"]) [class*="cookie"] {
-  color: rgba(0, 0, 0, 0.74) !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home {
-  --skin-shell-bg: rgba(223, 228, 232, 1);
-  --skin-shell-bg-soft: rgba(223, 228, 232, 1);
-  --skin-shell-header-left: rgba(223, 228, 231, 1);
-  --skin-shell-header-right: rgba(184, 189, 192, 1);
-  --skin-shell-border: #b7bec6;
-  --skin-action-fg: #4e5966;
-  --skin-action-fg-hover: #1f2834;
-  --skin-action-bg-hover: rgba(255, 255, 255, 0.75);
-  --skin-sidebar-bg: rgba(63, 69, 77, 0.95);
-  --skin-sidebar-panel: rgba(154, 161, 168, 0.38);
-  --skin-sidebar-text: rgba(238, 242, 246, 0.95);
-  --skin-sidebar-text-muted: rgba(214, 220, 226, 0.74);
-  --skin-sidebar-border: rgba(255, 255, 255, 0.58);
+body.skin-platform-chatgpt :is(#thread-bottom-container, #thread-bottom) {
   background-color: var(--skin-shell-bg) !important;
 }
-
-body.skin-platform-chatgpt.skin-view-home main,
-body.skin-platform-chatgpt.skin-view-home [class*="react-scroll-to-bottom"] {
-  background: linear-gradient(180deg, var(--skin-shell-bg-soft) 0%, var(--skin-shell-bg) 100%) !important;
+body.skin-platform-chatgpt main :is([data-markdown-copy="exclude"].text-codex-description, [data-testid="thread-disclaimer"]) {
+  color: var(--skin-muted) !important;
 }
 
-body.skin-platform-chatgpt.skin-view-home #page-header,
-body.skin-platform-chatgpt.skin-view-home header[role="banner"],
-body.skin-platform-chatgpt.skin-view-home [role="banner"] {
-  background: linear-gradient(
-    90deg,
-    var(--skin-shell-header-left) 0%,
-    var(--skin-shell-header-left) 20%,
-    var(--skin-shell-header-right) 100%
-  ) !important;
-  border: 1px solid rgba(255, 255, 255, 1) !important;
-  border-radius: 0 !important;
+body.skin-platform-chatgpt :is([data-chatgpt-composer] [data-composer-surface-variant], [data-composer-surface="true"]) {
+  color-scheme: light;
+  --color-text: var(--skin-ink);
+  --color-text-emphasis: var(--skin-ink);
+  --color-text-secondary: var(--skin-muted);
+  --color-text-tertiary: var(--skin-muted);
+  --composer-layout-surface-background: var(--skin-panel) !important;
+  --composer-layout-surface-fill: var(--skin-panel) !important;
+  --composer-layout-surface-shadow: 0 0 0 1px var(--skin-line), 0 3px 12px #1e31421a !important;
+  background: var(--skin-panel) !important;
+  color: var(--skin-ink) !important;
+  box-shadow: var(--composer-layout-surface-shadow) !important;
+}
+body.skin-platform-chatgpt :is([data-chatgpt-composer] [data-composer-surface-variant], [data-composer-surface="true"]):focus-within {
+  --composer-layout-surface-shadow: 0 0 0 2px #6283a0, 0 3px 12px #1e31421a !important;
+}
+body.skin-platform-chatgpt :is([data-chatgpt-composer], [data-composer-surface="true"]) :is(textarea, [contenteditable="true"]) {
+  color: var(--skin-ink) !important;
+  caret-color: var(--skin-ink);
+}
+body.skin-platform-chatgpt :is([data-chatgpt-composer], [data-composer-surface="true"]) textarea::placeholder,
+body.skin-platform-chatgpt :is([data-chatgpt-composer], [data-composer-surface="true"]) [data-placeholder]::before {
+  color: var(--skin-muted);
+}
+body.skin-platform-chatgpt [data-chatgpt-composer] button {
+  color: var(--skin-muted);
+}
+body.skin-platform-chatgpt [data-chatgpt-composer] :is([data-composer-voice-start], [data-testid="send-button"], [data-testid="stop-button"]) {
+  --color-text-composer-primary: white;
+  background: #344556 !important;
+  color: white !important;
 }
 
-body.skin-platform-chatgpt.skin-view-home #page-header,
-body.skin-platform-chatgpt.skin-view-home #page-header *,
-body.skin-platform-chatgpt.skin-view-home header[role="banner"],
-body.skin-platform-chatgpt.skin-view-home header[role="banner"] button,
-body.skin-platform-chatgpt.skin-view-home header[role="banner"] a,
-body.skin-platform-chatgpt.skin-view-home header[role="banner"] svg,
-body.skin-platform-chatgpt.skin-view-home [role="banner"] button,
-body.skin-platform-chatgpt.skin-view-home [role="banner"] a,
-body.skin-platform-chatgpt.skin-view-home [role="banner"] svg {
-  color: rgba(46, 51, 54, 1) !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home header[role="banner"] svg,
-body.skin-platform-chatgpt.skin-view-home [role="banner"] svg,
-body.skin-platform-chatgpt.skin-view-home #page-header svg {
-  fill: currentColor !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home h1.text-page-header,
-body.skin-platform-chatgpt.skin-view-home h1.text-page-header *,
-body.skin-platform-chatgpt.skin-view-home h1.text-page-header .text-inherit,
-body.skin-platform-chatgpt.skin-view-home h1.text-page-header button {
-  color: rgba(0, 0, 0, 0.88) !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home aside,
-body.skin-platform-chatgpt.skin-view-home [class*="sidebar"] {
-  background: var(--skin-sidebar-bg) !important;
-  color: var(--skin-sidebar-text) !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home [data-testid="accounts-profile-button"],
-body.skin-platform-chatgpt.skin-view-home [data-testid="accounts-profile-button"]::before,
-body.skin-platform-chatgpt.skin-view-home .bg-token-bg-elevated-secondary,
-body.skin-platform-chatgpt.skin-view-home .bg-token-bg-elevated-secondary > .relative,
-body.skin-platform-chatgpt.skin-view-home .bg-token-bg-elevated-secondary > div,
-body.skin-platform-chatgpt.skin-view-home .sticky.bottom-0.z-30.py-1\\.5.empty\\:hidden,
-body.skin-platform-chatgpt.skin-view-home div[class*="bg-token-bg-elevated-secondary"],
-body.skin-platform-chatgpt.skin-view-home div[data-sidebar-item="true"],
-body.skin-platform-chatgpt.skin-view-home div[data-sidebar-item="true"] > div,
-body.skin-platform-chatgpt.skin-view-home div[data-sidebar-item="true"] > div > div {
-  background: rgba(63, 69, 77, 0.95) !important;
-  background-color: rgba(63, 69, 77, 0.95) !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home aside a,
-body.skin-platform-chatgpt.skin-view-home aside button {
-  color: var(--skin-sidebar-text) !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home aside li,
-body.skin-platform-chatgpt.skin-view-home aside [role="listitem"],
-body.skin-platform-chatgpt.skin-view-home aside [data-testid*="history"],
-body.skin-platform-chatgpt.skin-view-home aside [data-testid*="conversation"] {
-  background: var(--skin-sidebar-panel) !important;
-  border: 1px solid var(--skin-sidebar-border) !important;
-  border-radius: 10px !important;
-  backdrop-filter: blur(1.5px) !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home #thread-bottom-container,
-body.skin-platform-chatgpt.skin-view-home #thread-bottom-container > div,
-body.skin-platform-chatgpt.skin-view-home #thread-bottom,
-body.skin-platform-chatgpt.skin-view-home form,
-body.skin-platform-chatgpt.skin-view-home form > div,
-body.skin-platform-chatgpt.skin-view-home [data-testid="composer"],
-body.skin-platform-chatgpt.skin-view-home [data-testid="composer"] > div {
-  background: transparent !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home form textarea,
-body.skin-platform-chatgpt.skin-view-home [data-testid="composer"] textarea,
-body.skin-platform-chatgpt.skin-view-home form [contenteditable="true"],
-body.skin-platform-chatgpt.skin-view-home [data-testid="composer"] [contenteditable="true"],
-body.skin-platform-chatgpt.skin-view-home form button,
-body.skin-platform-chatgpt.skin-view-home [data-testid="composer"] button {
-  color: var(--skin-action-fg) !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home footer,
-body.skin-platform-chatgpt.skin-view-home footer *,
-body.skin-platform-chatgpt.skin-view-home [class*="disclaimer"],
-body.skin-platform-chatgpt.skin-view-home [class*="disclaimer"] *,
-body.skin-platform-chatgpt.skin-view-home [class*="cookie"] {
-  color: rgba(0, 0, 0, 0.74) !important;
-}
-
-body.skin-platform-chatgpt.skin-view-home button[class*="rounded"],
-body.skin-platform-chatgpt.skin-view-home a[class*="rounded"],
-body.skin-platform-chatgpt.skin-view-home [role="button"][class*="rounded"] {
-  border-radius: 14px !important;
+body.skin-platform-chatgpt .skin-bubble-user {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 /* Project home top area (no conversation turns yet). */
@@ -310,164 +210,163 @@ body.skin-platform-chatgpt .content-fade-top [role="tab"][data-state="inactive"]
   color: rgba(31, 40, 52, 0.95) !important;
 }
 
-body:has([data-testid^="conversation-turn-"]) .skin-bubble-wrap-assistant,
-body:has([data-testid^="conversation-turn"]) .skin-bubble-wrap-assistant {
+body.skin-platform-chatgpt.skin-view-chat .skin-bubble-wrap-assistant {
   gap: 14px !important;
   margin-bottom: 12px !important;
 }
 
 /* Hard override for ChatGPT project home top panel. */
-body [class*="offset-padding-top-4"][class*="content-fade-top"],
-body .content-fade-top {
+body.skin-platform-chatgpt [class*="offset-padding-top-4"][class*="content-fade-top"],
+body.skin-platform-chatgpt .content-fade-top {
   background: linear-gradient(180deg, rgb(223, 228, 232) 0%, rgb(223, 228, 232) 70%, rgb(214, 220, 226) 100%) !important;
   background-color: rgb(223, 228, 232) !important;
 }
 
-body [class*="mt-13"]:has(> [class*="content-fade-top"]) {
+body.skin-platform-chatgpt [class*="mt-13"]:has(> [class*="content-fade-top"]) {
   background: linear-gradient(180deg, rgb(223, 228, 232) 0%, rgb(223, 228, 232) 70%, rgb(214, 220, 226) 100%) !important;
   background-color: rgb(223, 228, 232) !important;
 }
 
-body .content-fade-top [data-composer-surface="true"] {
+body.skin-platform-chatgpt .content-fade-top [data-composer-surface="true"] {
   background: rgb(248, 250, 252) !important;
   background-color: rgb(248, 250, 252) !important;
   border: 1px solid rgb(183, 190, 198) !important;
 }
 
-body .content-fade-top [role="tab"][data-state="active"] {
+body.skin-platform-chatgpt .content-fade-top [role="tab"][data-state="active"] {
   background: rgb(255, 255, 255) !important;
   border: 1px solid rgb(183, 190, 198) !important;
 }
 
 /* Project chats list text color override */
-body [role="tabpanel"][id*="content-chats"],
-body [role="tabpanel"][id*="content-chats"] a,
-body [role="tabpanel"][id*="content-chats"] li[class*="project-item"] {
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"],
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] a,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] li[class*="project-item"] {
   color: rgb(22, 27, 33) !important;
 }
 
-body [role="tabpanel"][id*="content-chats"] .text-token-text-secondary,
-body [role="tabpanel"][id*="content-chats"] .text-token-text-tertiary,
-body [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-date"],
-body [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-menu"],
-body [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-menu"] svg,
-body [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-menu"] .icon {
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] .text-token-text-secondary,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] .text-token-text-tertiary,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-date"],
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-menu"],
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-menu"] svg,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] [data-testid="project-conversation-overflow-menu"] .icon {
   color: rgb(58, 66, 77) !important;
   fill: currentColor !important;
 }
 
 /* Project chats list item surface */
-body [role="tabpanel"][id*="content-chats"] li[class*="project-item"] {
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] li[class*="project-item"] {
   background: rgb(245, 248, 251) !important;
   border-bottom: 1px solid rgb(224, 229, 235) !important;
 }
 
-body [role="tabpanel"][id*="content-chats"] li[class*="project-item"]:hover {
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] li[class*="project-item"]:hover {
   background: rgb(236, 242, 248) !important;
 }
 
-body [role="tabpanel"][id*="content-chats"] li[class*="project-item"]:active,
-body [role="tabpanel"][id*="content-chats"] li[class*="project-item"][aria-current="page"] {
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] li[class*="project-item"]:active,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] li[class*="project-item"][aria-current="page"] {
   background: rgb(227, 235, 244) !important;
 }
 
 /* Project top composer surface */
-body .content-fade-top [data-type="unified-composer"] [data-composer-surface="true"] {
+body.skin-platform-chatgpt .content-fade-top [data-type="unified-composer"] [data-composer-surface="true"] {
   background: rgb(248, 250, 252) !important;
   background-color: rgb(248, 250, 252) !important;
   border: 1px solid rgb(183, 190, 198) !important;
   box-shadow: 0 8px 18px rgba(24, 31, 40, 0.08) !important;
 }
 
-body .content-fade-top [data-type="unified-composer"] .ProseMirror,
-body .content-fade-top [data-type="unified-composer"] textarea,
-body .content-fade-top [data-type="unified-composer"] [contenteditable="true"],
-body .content-fade-top [data-type="unified-composer"] .composer-btn,
-body .content-fade-top [data-type="unified-composer"] button {
+body.skin-platform-chatgpt .content-fade-top [data-type="unified-composer"] .ProseMirror,
+body.skin-platform-chatgpt .content-fade-top [data-type="unified-composer"] textarea,
+body.skin-platform-chatgpt .content-fade-top [data-type="unified-composer"] [contenteditable="true"],
+body.skin-platform-chatgpt .content-fade-top [data-type="unified-composer"] .composer-btn,
+body.skin-platform-chatgpt .content-fade-top [data-type="unified-composer"] button {
   color: rgb(22, 27, 33) !important;
 }
 
-body .content-fade-top [data-type="unified-composer"] [contenteditable="true"] p[data-placeholder]::before {
+body.skin-platform-chatgpt .content-fade-top [data-type="unified-composer"] [contenteditable="true"] p[data-placeholder]::before {
   color: rgb(108, 118, 130) !important;
 }
 
 /* Composer speech button contrast */
-body button[data-testid="composer-speech-button"] {
+body.skin-platform-chatgpt button[data-testid="composer-speech-button"] {
   background: rgb(63, 69, 77) !important;
   background-color: rgb(63, 69, 77) !important;
   color: rgb(255, 255, 255) !important;
 }
 
-body button[data-testid="composer-speech-button"] svg,
-body button[data-testid="composer-speech-button"] .icon,
-body button[data-testid="composer-speech-button"] use {
+body.skin-platform-chatgpt button[data-testid="composer-speech-button"] svg,
+body.skin-platform-chatgpt button[data-testid="composer-speech-button"] .icon,
+body.skin-platform-chatgpt button[data-testid="composer-speech-button"] use {
   color: rgb(255, 255, 255) !important;
   fill: currentColor !important;
 }
 
 /* Project container background (wrapper layers around chats tabpanel) */
-body div:has(> .content-fade-top):has(> [role="tabpanel"][id*="content-chats"]),
-body div:has(> .content-fade-top):has(> div[role="tabpanel"][id*="content-chats"]),
-body [role="tabpanel"][id*="content-chats"],
-body [role="tabpanel"][id*="content-chats"] > div,
-body [role="tabpanel"][id*="content-chats"] > div > div,
-body [role="tabpanel"][id*="content-chats"] section,
-body [role="tabpanel"][id*="content-chats"] ol {
+body.skin-platform-chatgpt div:has(> .content-fade-top):has(> [role="tabpanel"][id*="content-chats"]),
+body.skin-platform-chatgpt div:has(> .content-fade-top):has(> div[role="tabpanel"][id*="content-chats"]),
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"],
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] > div,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] > div > div,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] section,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-chats"] ol {
   background: rgb(223, 228, 232) !important;
   background-color: rgb(223, 228, 232) !important;
 }
 
-body .content-fade-top::before,
-body .content-fade-top::after {
+body.skin-platform-chatgpt .content-fade-top::before,
+body.skin-platform-chatgpt .content-fade-top::after {
   background: transparent !important;
 }
 
 /* Project "Sources" tab readability */
-body [role="tabpanel"][id*="content-sources"][data-state="active"],
-body [role="tabpanel"][id*="content-sources"][data-state="active"] > div,
-body [role="tabpanel"][id*="content-sources"][data-state="active"] section {
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"],
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] > div,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] section {
   background: rgb(223, 228, 232) !important;
   background-color: rgb(223, 228, 232) !important;
   color: rgb(22, 27, 33) !important;
 }
 
-body [role="tabpanel"][id*="content-sources"][data-state="active"] h1,
-body [role="tabpanel"][id*="content-sources"][data-state="active"] h2,
-body [role="tabpanel"][id*="content-sources"][data-state="active"] h3,
-body [role="tabpanel"][id*="content-sources"][data-state="active"] p,
-body [role="tabpanel"][id*="content-sources"][data-state="active"] span,
-body [role="tabpanel"][id*="content-sources"][data-state="active"] div,
-body [role="tabpanel"][id*="content-sources"][data-state="active"] a {
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] h1,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] h2,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] h3,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] p,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] span,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] div,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] a {
   color: rgb(22, 27, 33) !important;
 }
 
-body [role="tabpanel"][id*="content-sources"][data-state="active"] .text-token-text-secondary,
-body [role="tabpanel"][id*="content-sources"][data-state="active"] .text-token-text-tertiary,
-body [role="tabpanel"][id*="content-sources"][data-state="active"] [class*="text-token-text-secondary"],
-body [role="tabpanel"][id*="content-sources"][data-state="active"] [class*="text-token-text-tertiary"] {
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] .text-token-text-secondary,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] .text-token-text-tertiary,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] [class*="text-token-text-secondary"],
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] [class*="text-token-text-tertiary"] {
   color: rgb(78, 89, 102) !important;
 }
 
-body [role="tabpanel"][id*="content-sources"][data-state="active"] button,
-body [role="tabpanel"][id*="content-sources"][data-state="active"] [role="button"] {
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] button,
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] [role="button"] {
   color: rgb(22, 27, 33) !important;
 }
 
-body [role="tabpanel"][id*="content-sources"][data-state="active"] button[class*="rounded"],
-body [role="tabpanel"][id*="content-sources"][data-state="active"] [role="button"][class*="rounded"] {
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] button[class*="rounded"],
+body.skin-platform-chatgpt [role="tabpanel"][id*="content-sources"][data-state="active"] [role="button"][class*="rounded"] {
   background: rgb(245, 248, 251) !important;
   border: 1px solid rgb(183, 190, 198) !important;
 }
 
-body div:has(> [role="tabpanel"][id*="content-sources"][data-state="active"]) [class*="text-token-text-tertiary"],
-body div:has(> [role="tabpanel"][id*="content-sources"][data-state="active"]) [class*="text-token-text-secondary"] {
+body.skin-platform-chatgpt div:has(> [role="tabpanel"][id*="content-sources"][data-state="active"]) [class*="text-token-text-tertiary"],
+body.skin-platform-chatgpt div:has(> [role="tabpanel"][id*="content-sources"][data-state="active"]) [class*="text-token-text-secondary"] {
   color: rgb(78, 89, 102) !important;
 }
 
 /* Keep tab strip area visually flat */
-body [role="tablist"][aria-label*="프로젝트 섹션"],
-body [role="tablist"][aria-label*="Project section"],
-body [role="tablist"][id*="project-home-tabs"] {
+body.skin-platform-chatgpt [role="tablist"][aria-label*="프로젝트 섹션"],
+body.skin-platform-chatgpt [role="tablist"][aria-label*="Project section"],
+body.skin-platform-chatgpt [role="tablist"][id*="project-home-tabs"] {
   background: transparent !important;
   box-shadow: none !important;
 }

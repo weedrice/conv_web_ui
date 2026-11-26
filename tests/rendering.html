@@ -1,0 +1,174 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../multi-ai-skin/content/common.css">
+<link rel="stylesheet" href="../multi-ai-skin/content/platforms/chatgpt.css">
+<link rel="stylesheet" href="../multi-ai-skin/content/platforms/gemini.css">
+<title>Chat skin rendering checks</title>
+<pre id="result">Running</pre>
+<main></main>
+<script src="../multi-ai-skin/shared/builtin-characters.js"></script>
+<script src="../multi-ai-skin/content/splitter.js"></script>
+<script src="../multi-ai-skin/content/platforms/chatgpt.js"></script>
+<script src="../multi-ai-skin/content/platforms/claude.js"></script>
+<script src="../multi-ai-skin/content/platforms/gemini.js"></script>
+<script src="../multi-ai-skin/content/renderer.js"></script>
+<script src="../multi-ai-skin/content/observer.js"></script>
+<script>
+(async function () {
+  const root = document.querySelector('main');
+  const report = document.querySelector('#result');
+  const { renderer, platforms, splitter, observer } = window.AIChatSkin;
+  let enabled = true;
+  window.chrome.runtime = {
+    id: 'rendering-test',
+    getURL: path => new URL('../multi-ai-skin/' + path, location.href).href
+  };
+  window.chrome.storage = {
+    sync: { get: (defaults, done) => done({ ...defaults, enabled }) },
+    local: { get: (defaults, done) => done(defaults) }
+  };
+  const check = (ok, message) => { if (!ok) throw new Error(message); };
+  const bubble = role => root.querySelectorAll('.skin-bubble-wrap-' + role);
+  const tick = () => new Promise(resolve => setTimeout(resolve, 240));
+
+  try {
+    if (location.search === '?asset-init') {
+      chrome.runtime.getURL = () => { throw new Error('Extension context invalidated.'); };
+      renderer.reloadSettings(platforms.chatgpt);
+      check(renderer.signal.aborted && !root.querySelector('.skin-bubble-container'), 'invalidated at startup');
+      report.textContent = 'PASS';
+      return;
+    }
+    // Modern ChatGPT hosts these surfaces in separate theme and paint layers.
+    document.body.classList.add('skin-platform-chatgpt', 'skin-view-chat');
+    root.innerHTML = '<aside><nav data-slate-sidebar-content><div role="listitem"><div data-sidebar-cycle-item aria-current="page">Selected</div></div><div data-sidebar-cycle-item>Idle</div></nav></aside>' +
+      '<div data-rail-chat-transcript><div data-response-body><div data-theme="dark"><div data-dil-response>' +
+      '<span data-d-component="popover-trigger" role="button"><span data-d-component="badge" data-pill style="background:black">Source</span></span></div></div></div></div>' +
+      '<div id="footer"><div data-thread-scroll-footer><form data-chatgpt-composer><div data-composer-surface-variant="default">' +
+      '<textarea></textarea><button data-composer-voice-start>Voice</button></div></form></div></div>';
+    const style = selector => getComputedStyle(root.querySelector(selector));
+    check(style('aside').backgroundColor === style('nav').backgroundColor, 'uniform sidebar');
+    check(style('[aria-current]').backgroundColor !== style('[data-sidebar-cycle-item]:last-child:not([aria-current])').backgroundColor, 'selected row');
+    check(style('[data-pill]').color === 'rgb(35, 68, 98)' && style('[data-pill]').backgroundColor === 'rgb(232, 241, 250)', 'readable citation');
+    check(style('#footer').getPropertyValue('--color-surface').trim() === '#dfe4e8', 'footer backdrop');
+    check(style('textarea').color === 'rgb(32, 40, 48)' && style('[data-composer-surface-variant]').backgroundColor === 'rgb(249, 250, 251)', 'composer contrast');
+    document.body.classList.remove('skin-platform-chatgpt', 'skin-view-chat');
+    check(style('[data-pill]').backgroundColor === 'rgb(0, 0, 0)', 'disabled skin restores source chip');
+    root.innerHTML = '<article data-turn="user"><div data-message-author-role="user">old question</div></article>' +
+      '<article data-turn="assistant"><div data-message-author-role="assistant"><p>old answer</p></div></article>';
+    renderer.reloadSettings(platforms.chatgpt);
+    check(bubble('user').length === 1 && bubble('assistant').length === 1, 'legacy ChatGPT');
+
+    root.innerHTML = '<div data-rail-chat-transcript><div data-talvt-turn-state="streaming">' +
+      '<div data-user-message-bubble>question</div><button>Edit</button>' +
+      '<div data-response-body="answer"><p>first</p></div><button>Copy</button></div></div>';
+    const source = root.querySelector('[data-response-body]');
+    const control = source.nextElementSibling;
+    let copied = false;
+    control.onclick = () => { copied = true; };
+    renderer.reloadSettings(platforms.chatgpt);
+    observer.startObserving(platforms.chatgpt);
+    source.querySelector('p').firstChild.data += ' token';
+    await tick();
+    check(root.querySelector('.skin-stream-text')?.textContent === 'first token', 'stream text mutation');
+    source.parentElement.setAttribute('data-talvt-turn-state', 'complete');
+    await tick();
+    check(bubble('assistant').length === 1 && !root.querySelector('.skin-stream-text'), 'finish stream');
+    control.click();
+    check(copied && !control.closest('.skin-original-hidden'), 'original action');
+    source.nextElementSibling.remove();
+    renderer.renderAll(platforms.chatgpt);
+    check(bubble('assistant').length === 1, 'recover removed bubble');
+    const replacement = document.createElement('div');
+    replacement.setAttribute('data-response-body', 'answer');
+    replacement.textContent = 'edited';
+    source.replaceWith(replacement);
+    await tick();
+    check(bubble('assistant').length === 1 && root.querySelector('.skin-bubble-wrap-assistant .skin-bubble').textContent === 'edited', 'replace source');
+    enabled = false;
+    renderer.reloadSettings(platforms.chatgpt);
+    check(!root.querySelector('.skin-original-hidden, .skin-bubble-container'), 'restore native conversation');
+    enabled = true;
+
+    root.innerHTML = '<div data-test-render-count><div data-testid="user-message">hi</div></div>' +
+      '<div data-test-render-count><div data-is-streaming="false"><div class="font-claude-response">' +
+      '<div class="standard-markdown"><p>one</p></div><div class="standard-markdown"><p>two</p></div>' +
+      '</div></div><button data-testid="action-bar-copy">Copy</button></div>';
+    renderer.reloadSettings(platforms.claude);
+    check(bubble('user').length === 1 && bubble('assistant').length === 2, 'Claude multipart answer');
+    check(!root.querySelector('button').closest('.skin-original-hidden'), 'Claude action visible');
+
+    root.innerHTML = '<user-query><div class="query-content"><div class="user-query-bubble-with-background">' +
+      '<p class="query-text-line">hello</p></div><button>Edit</button></div></user-query>' +
+      '<model-response><div class="markdown-main-panel"><p>world</p></div><message-actions><button>Copy</button></message-actions></model-response>';
+    renderer.reloadSettings(platforms.gemini);
+    renderer.renderAll(platforms.gemini);
+    check(bubble('user').length === 1 && bubble('assistant').length === 1, 'Gemini duplicate');
+    check([...root.querySelectorAll('button')].every(el => !el.closest('.skin-original-hidden')), 'Gemini controls');
+    document.body.classList.add('skin-platform-gemini', 'skin-view-chat');
+    root.innerHTML = '<div class="conversation-container generative-ui" style="max-width:100%;width:100%;display:flex;flex-direction:column;align-items:center"><user-query style="width:100%"><div class="query-content">' +
+      '<div><button class="action-button">Edit</button></div><div><button class="action-button">Copy</button></div>' +
+      '<span class="user-query-bubble-with-background"><p class="query-text-line">First line</p>' +
+      '<p class="query-text-line">Second line</p></span></div></user-query>' +
+      '<model-response style="width:100%"><div><iframe style="width:100vw" title="Interactive response"></iframe></div>' +
+      '<message-actions><button>Copy</button></message-actions></model-response>' +
+      '<model-response style="width:100%"><div class="markdown-main-panel"><p>' +
+      'Long answer text '.repeat(30) + '</p></div></model-response>' +
+      '<generative-ui-response style="width:100%"><iframe style="width:100vw" title="Generated card"></iframe></generative-ui-response></div>' +
+      '<input-container><input-area-v2><textarea placeholder="Ask Gemini"></textarea></input-area-v2></input-container>';
+    const frame = root.querySelector('iframe');
+    renderer.reloadSettings(platforms.gemini);
+    const header = root.querySelector('.skin-bubble-container:has(+ model-response.skin-native-content)');
+    check(header && frame === root.querySelector('iframe') && !frame.closest('.skin-original-hidden'), 'Gemini interactive reply kept mounted');
+    for (const width of [1200, 320]) {
+      root.style.width = width + 'px';
+      const question = root.querySelector('.skin-bubble-user');
+      const turn = root.querySelector('.conversation-container').getBoundingClientRect();
+      const headRect = header.getBoundingClientRect();
+      check(Math.abs(turn.width - Math.min(760, width)) < 1 && Math.abs(headRect.left - turn.left) < 1, 'Gemini reply stays in the centered turn at ' + width);
+      for (const el of root.querySelectorAll('iframe, .skin-bubble-wrap-assistant .skin-bubble')) {
+        const rect = el.getBoundingClientRect();
+        check(rect.width > 0 && rect.left >= turn.left - 1 && rect.right <= question.getBoundingClientRect().right + 1, 'Gemini reply exceeds user bubble edge at ' + width);
+      }
+      check(question.innerText === 'First line\nSecond line', 'Gemini multiline question');
+      for (const button of root.querySelectorAll('.action-button')) {
+        check(button.getBoundingClientRect().top >= question.getBoundingClientRect().bottom, 'Gemini action overlaps question at ' + width);
+      }
+    }
+    check(style('input-area-v2').backgroundColor === 'rgb(249, 250, 251)' && style('textarea').color === 'rgb(40, 50, 59)', 'Gemini composer contrast');
+    root.style.removeProperty('width');
+    const markup = '<p>first sentence. second sentence. &lt;example&gt;</p><pre>xy</pre><table><tr><td>z</td></tr></table>';
+    const output = document.createElement('div');
+    output.innerHTML = splitter.split(markup, 18).join('');
+    check(output.textContent === 'first sentence. second sentence. <example>xyz', 'split preserves text and whitespace');
+    check(!output.querySelector('example') && output.querySelector('pre') && output.querySelector('table'), 'literal markup, code and table');
+
+    root.innerHTML = '<article data-turn="user"><div data-message-author-role="user">before reload</div></article>';
+    renderer.reloadSettings(platforms.chatgpt);
+    check(root.querySelector('.skin-avatar').src.endsWith('/multi-ai-skin/assets/characters/rober_f.webp'), 'active extension resolves packaged avatar');
+    let finishSettings;
+    chrome.storage.sync.get = (defaults, done) => { finishSettings = () => done(defaults); };
+    renderer.reloadSettings(platforms.chatgpt);
+    let urlCalls = 0;
+    chrome.runtime.getURL = () => { ++urlCalls; throw new Error('Extension context invalidated.'); };
+    root.querySelector('[data-message-author-role]').textContent = 'while tab stays open';
+    renderer.renderAll(platforms.chatgpt);
+    check(root.querySelector('.skin-bubble-user').textContent === 'while tab stays open' && urlCalls === 0, 'render uses cached avatar directory');
+    if (location.search === '?missing-id') delete chrome.runtime.id;
+    else Object.defineProperty(chrome.runtime, 'id', { get() { throw new Error('Extension context invalidated.'); } });
+    renderer.renderAll(platforms.chatgpt);
+    check(renderer.signal.aborted && urlCalls === 0, 'invalidated context stops rendering');
+    check(!root.querySelector('.skin-original-hidden, .skin-bubble-container, [data-skin-processed]'), 'original conversation restored');
+    let staleRenders = 0;
+    renderer.renderAll = () => { ++staleRenders; };
+    finishSettings();
+    root.querySelector('article').append('new turn');
+    window.dispatchEvent(new Event('resize'));
+    await tick();
+    check(!staleRenders && !root.querySelector('.skin-bubble-container'), 'pending settings and old observers stay stopped');
+    report.textContent = 'PASS';
+  } catch (error) {
+    report.textContent = 'FAIL: ' + error.message;
+  }
+})();
+</script>

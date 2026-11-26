@@ -491,3 +491,24 @@ div[class*="bg-bg-"]:has([data-testid="user-message"][data-skin-processed="true"
 }
 
 
+
+.skin-stream-text,
+.skin-bubble-user {
+  white-space: pre-wrap !important;
+}
+
+.skin-native-content {
+  position: relative;
+  padding: 12px 18px;
+  border-radius: 14px;
+}
+
+.skin-bubble-wrap-assistant .skin-bubble {
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skin-fade-in, .skin-typing span {
+    animation: none !important;
+  }
+}

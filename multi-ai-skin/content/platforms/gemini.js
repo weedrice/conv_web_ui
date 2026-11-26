@@ -37,7 +37,7 @@
   function toUserTurn(el) {
     if (!el) return null;
     if (el.tagName && el.tagName.toLowerCase() === 'user-query') return el;
-    if (el.closest) return el.closest('user-query');
+    if (el.closest) return el.closest('user-query') || el.closest('.user-query-container');
     return null;
   }
 
@@ -108,8 +108,8 @@
     if (!userTurn || !userTurn.querySelector) return null;
     // Use the real bubble shell as the primary anchor to keep hover controls aligned.
     return userTurn.querySelector('.user-query-bubble-with-background') ||
-      userTurn.querySelector('.query-text-line') ||
       userTurn.querySelector('.query-text') ||
+      userTurn.querySelector('.query-text-line') ||
       userTurn.querySelector('.query-content') ||
       userTurn.querySelector('.user-query-container') ||
       userTurn.querySelector('.user-query-content');
@@ -118,8 +118,8 @@
   function getUserHideNode(userTurn) {
     if (!userTurn || !userTurn.querySelector) return null;
     return userTurn.querySelector('.user-query-bubble-with-background') ||
-      userTurn.querySelector('.query-text-line') ||
       userTurn.querySelector('.query-text') ||
+      userTurn.querySelector('.query-text-line') ||
       userTurn.querySelector('.user-query-content');
   }
 
@@ -152,7 +152,9 @@
       '.markdown.markdown-main-panel',
       '.markdown-main-panel',
       '.model-response-text',
-      '.response-content'
+      '.response-content',
+      'message-content',
+      'structured-content-container'
     ];
 
     // Shadow DOM 우선 탐색
@@ -276,7 +278,9 @@
     if (adapter.isStreaming(assistantTurn)) return true;
 
     // 비어 있는 placeholder model-response는 제외
-    return isMeaningfulAssistantText(getAssistantCleanText(assistantTurn));
+    const body = getAssistantContentNode(assistantTurn) || assistantTurn;
+    return !!body.querySelector('iframe, video, table, pre, canvas, img:not(.skin-avatar, .avatar-gutter img)') ||
+      isMeaningfulAssistantText(getAssistantCleanText(assistantTurn));
   }
 
   ns.platforms.gemini = {

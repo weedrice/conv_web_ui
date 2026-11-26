@@ -79,7 +79,7 @@
         if (isSkinNode(el)) continue;
         if (el.closest && el.closest(USER_SELECTORS)) continue;
         var text = (el.textContent || '').trim();
-        if (text.length < 2) continue;
+        if (!text.length) continue;
         return el;
       }
     }
@@ -140,12 +140,18 @@
         if (isSkinNode(el)) continue;
         if (el.closest && el.closest(USER_SELECTORS)) continue;
         var text = (el.textContent || '').trim();
-        if (text.length < 2) continue;
+        if (!text.length) continue;
         all.push(el);
       }
     }
 
-    return sortDomOrder(uniqueElements(all));
+    const candidates = new Set(all);
+    return sortDomOrder([...candidates].filter(el => {
+      for (let parent = el.parentElement; parent && parent !== root; parent = parent.parentElement) {
+        if (candidates.has(parent)) return false;
+      }
+      return true;
+    }));
   }
 
   function hasSelector(el, selector) {
@@ -287,10 +293,9 @@
     getInnerHTML: function (el) {
       if (!el) return '';
 
-      var markdown = getFirstNonSkinBySelector(el, '.standard-markdown, .progressive-markdown');
-      if (markdown) {
-        return markdown.innerHTML;
-      }
+      const blocks = Array.from(el.querySelectorAll('.standard-markdown, .progressive-markdown'))
+        .filter(node => !isSkinNode(node) && !node.parentElement.closest('.standard-markdown, .progressive-markdown'));
+      if (blocks.length) return blocks.map(node => node.innerHTML).join('\n');
 
       var responseEl = hasSelector(el, '.font-claude-response') ? el : getFirstNonSkinBySelector(el, '.font-claude-response, div[class*="font-claude-response"]');
       if (responseEl) {

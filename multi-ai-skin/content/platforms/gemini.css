@@ -485,31 +485,123 @@ user-query[data-skin-processed="true"] .query-content.vertical-align-for-single-
   align-items: flex-start !important;
 }
 
-/* Keep Gemini user hover action buttons close to the rendered bubble */
-user-query[data-skin-processed="true"] .query-content {
-  position: relative !important;
+/* Keep the native edit/copy controls in flow when replacing a question. */
+user-query[data-skin-processed] .query-content:has(> .skin-original-hidden + .skin-bubble-container) {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  padding-inline: 0 !important;
 }
 
-user-query[data-skin-processed="true"] .query-content > div:has(> button.action-button) {
-  position: absolute !important;
-  top: 4px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  z-index: 3 !important;
+user-query[data-skin-processed] .query-content > .skin-original-hidden {
+  display: none !important;
 }
 
-user-query[data-skin-processed="true"] .query-content button.action-button {
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-  min-height: 28px !important;
-  padding: 0 !important;
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.86) !important;
+user-query[data-skin-processed] .query-content > .skin-original-hidden + .skin-bubble-container {
+  order: -1;
+  flex: 0 0 100%;
 }
 
-user-query[data-skin-processed="true"] .query-content .skin-bubble-container {
-  margin-top: 0 !important;
+/* Gemini's generative UI expands the entire turn to the width of the window. */
+body.skin-platform-gemini.skin-view-chat {
+  --skin-gemini-turn-width: 760px;
+  /* Right edge of the user's text, inside its 12px inset, 56px avatar and 8px gap. */
+  --skin-gemini-answer-inset: 76px;
+}
+
+body.skin-platform-gemini.skin-view-chat .conversation-container:has(user-query, model-response, generative-ui-response) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--skin-gemini-turn-width) !important;
+  min-width: 0;
+  margin-inline: auto;
+}
+
+body.skin-platform-gemini.skin-view-chat :is(model-response[data-skin-processed], generative-ui-response),
+body.skin-platform-gemini.skin-view-chat model-response + .skin-bubble-container {
+  box-sizing: border-box;
+  max-width: min(100%, var(--skin-gemini-turn-width)) !important;
+  min-width: 0;
+  margin-inline: auto;
+}
+
+body.skin-platform-gemini.skin-view-chat .skin-bubble-wrap-assistant {
+  padding-inline-end: var(--skin-gemini-answer-inset) !important;
+}
+
+body.skin-platform-gemini.skin-view-chat :is(model-response .skin-native-content, model-response.skin-native-content, generative-ui-response):not(.skin-native-content *, generative-ui-response *) {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding-inline-end: var(--skin-gemini-answer-inset);
+}
+
+body.skin-platform-gemini.skin-view-chat :is(.skin-native-content, generative-ui-response) iframe {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  body.skin-platform-gemini.skin-view-chat {
+    --skin-gemini-answer-inset: 42px;
+  }
+  body.skin-platform-gemini.skin-view-chat user-query .skin-bubble-wrap-user .skin-avatar {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+  }
+}
+
+body.skin-platform-gemini .skin-bubble-container:has(+ .skin-native-content) {
+  max-width: min(100%, var(--skin-gemini-turn-width, 760px)) !important;
+  margin-inline: auto;
+}
+
+body.skin-platform-gemini .skin-bubble-container:has(+ .skin-native-content) .skin-bubble-wrap {
+  align-items: center !important;
+  margin-bottom: 4px !important;
+}
+
+body.skin-platform-gemini .skin-bubble-container:has(+ .skin-native-content) .skin-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+}
+
+body.skin-platform-gemini model-response.skin-native-content {
+  padding-block: 0;
+  padding-inline-start: 0;
+}
+
+body.skin-platform-gemini.skin-view-chat {
+  --bard-color-synthetic--chat-window-surface: var(--skin-shell-bg) !important;
+  --gem-sys-color--surface: var(--skin-shell-bg) !important;
+}
+
+body.skin-platform-gemini.skin-view-chat input-container {
+  background: var(--skin-shell-bg) !important;
+  color: #303840 !important;
+}
+
+body.skin-platform-gemini.skin-view-chat input-area-v2 {
+  background: #f9fafb !important;
+  color: #28323b !important;
+  border-radius: 28px;
+  box-shadow: 0 0 0 1px #b7bec6 !important;
+  --gem-sys-color--surface: #f9fafb;
+  --gem-sys-color--surface-container: #f9fafb;
+  --gem-sys-color--on-surface: #28323b;
+}
+
+body.skin-platform-gemini.skin-view-chat input-area-v2 :is(textarea, [contenteditable="true"]) {
+  caret-color: #28323b;
+}
+
+body.skin-platform-gemini.skin-view-chat input-area-v2 .ql-blank::before,
+body.skin-platform-gemini.skin-view-chat input-area-v2 textarea::placeholder {
+  color: #57616b !important;
 }
 
 body.skin-platform-gemini.skin-view-home .autosuggest-scrim,

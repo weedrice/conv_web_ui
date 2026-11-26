@@ -9,6 +9,8 @@
 
   var ns = (window.AIChatSkin = window.AIChatSkin || {});
   var BUILTIN_CHARACTERS = ns.BUILTIN_CHARACTERS || [];
+  let avatarDirectory;
+  let useKoreanNames;
 
   /**
    * Cached settings/user character state used as a fallback when the extension
@@ -61,7 +63,7 @@
   function getLocalizedName(charInfo) {
     if (!charInfo) return '';
     if (charInfo.nameKo != null && charInfo.nameEn != null) {
-      return getUILanguage().toLowerCase().indexOf('ko') === 0 ? charInfo.nameKo : charInfo.nameEn;
+      return useKoreanNames ? charInfo.nameKo : charInfo.nameEn;
     }
     return charInfo.name || charInfo.nameEn || charInfo.nameKo || '';
   }
@@ -97,25 +99,11 @@
    * Builds the avatar source URL.
    * Prefer avatarBase64, then avatarFile, then the default avatar.png path.
    */
-  function getExtensionAssetUrl(path) {
-    if (
-      typeof chrome !== 'undefined' &&
-      chrome.runtime &&
-      typeof chrome.runtime.getURL === 'function'
-    ) {
-      return chrome.runtime.getURL(path);
-    }
-    return path;
-  }
-
   function getAvatarSrc(charInfo) {
     if (charInfo.avatarBase64) {
       return charInfo.avatarBase64;
     }
-    if (charInfo.avatarFile) {
-      return getExtensionAssetUrl('assets/characters/' + charInfo.avatarFile);
-    }
-    return getExtensionAssetUrl('assets/characters/' + charInfo.id + '/avatar.png');
+    return avatarDirectory + (charInfo.avatarFile || charInfo.id + '/avatar.png');
   }
 
   function normalizeVisibleText(text) {
@@ -131,7 +119,7 @@
     temp.innerHTML = html || '';
 
     var removable = temp.querySelectorAll(
-      'message-actions, copy-button, button, [class*="action"], [class*="menu"], [class*="toolbar"], [class*="feedback"], [class*="chip"], mat-icon, [class*="icon"], .cdk-visually-hidden, [aria-hidden="true"]'
+      'script, style, message-actions, copy-button, button, mat-icon, .cdk-visually-hidden'
     );
     for (var i = 0; i < removable.length; i++) {
       removable[i].remove();
@@ -259,388 +247,153 @@
     return wrap;
   }
 
-  /**
-   * Finds the DOM node that should act as the insertion anchor for a message.
-   * Usually this is the message wrapper or turn-local content node.
-   */
-  function findInsertionTarget(msgEl, adapter) {
-    var wrapper = adapter.getMessageWrapper(msgEl);
-    return wrapper || msgEl;
+
+  // A source can outlive its siblings when a platform virtualizes or edits a turn.
+  const rendered = new Map();
+  const lifetime = new AbortController();
+  let settings;
+  let characters = [];
+  let settingsVersion = 0;
+
+  function restore(source, record) {
+    record.container.remove();
+    for (const target of record.hidden) target.classList.remove('skin-original-hidden');
+    record.wrapper.classList.remove('skin-native-content');
+    source.removeAttribute('data-skin-processed');
+    rendered.delete(source);
   }
 
-  function isNodeAfter(baseNode, candidateNode) {
-    if (!baseNode || !candidateNode || baseNode === candidateNode) return false;
-    var pos = baseNode.compareDocumentPosition(candidateNode);
-    return !!(pos & Node.DOCUMENT_POSITION_FOLLOWING);
+  function stop(adapter) {
+    lifetime.abort();
+    ++settingsVersion;
+    for (const [source, record] of rendered) restore(source, record);
+    document.body.classList.remove('skin-platform-' + adapter.name, 'skin-view-home', 'skin-view-chat');
   }
 
-  function getHideTargets(msgEl, adapter, role) {
-    var targets = [];
-
-    if (adapter && adapter.getHideTarget) {
-      try {
-        var target = adapter.getHideTarget(msgEl, role);
-        if (target && target.classList) targets.push(target);
-      } catch (e) {}
-    }
-
-    if (adapter && adapter.getExtraHideTargets) {
-      try {
-        var extras = adapter.getExtraHideTargets(msgEl, role) || [];
-        for (var i = 0; i < extras.length; i++) {
-          if (extras[i] && extras[i].classList) targets.push(extras[i]);
+  function contextActive(adapter) {
+    if (lifetime.signal.aborted) return false;
+    try {
+      if (chrome.runtime?.id) {
+        if (!avatarDirectory) {
+          avatarDirectory = chrome.runtime.getURL('assets/characters/');
+          useKoreanNames = getUILanguage().toLowerCase().startsWith('ko');
         }
-      } catch (e2) {}
+        return true;
+      }
+    } catch (error) {
+      if (!isInvalidContext(error)) throw error;
     }
-
-    if (targets.length === 0) targets.push(msgEl);
-
-    var unique = [];
-    for (var j = 0; j < targets.length; j++) {
-      if (unique.indexOf(targets[j]) === -1) unique.push(targets[j]);
-    }
-    return unique;
+    stop(adapter);
+    return false;
   }
 
-  function hideOriginal(msgEl, adapter, role) {
-    var targets = getHideTargets(msgEl, adapter, role);
-    for (var i = 0; i < targets.length; i++) {
-      if (targets[i] && targets[i].classList) targets[i].classList.add('skin-original-hidden');
-    }
+  function isInvalidContext(error) {
+    return /Extension context invalidated/i.test(error.message);
   }
 
-  function showOriginal(msgEl, adapter, role) {
-    if (msgEl && msgEl.classList) msgEl.classList.remove('skin-original-hidden');
-
-    var targets = getHideTargets(msgEl, adapter, role);
-    for (var i = 0; i < targets.length; i++) {
-      if (targets[i] && targets[i].classList) targets[i].classList.remove('skin-original-hidden');
+  function renderMessage(source, adapter, dirty) {
+    const role = adapter.getRole(source);
+    const wrapper = adapter.getMessageWrapper(source);
+    const previous = rendered.get(source);
+    if (!wrapper || !wrapper.parentElement || !role) {
+      if (previous) restore(source, previous);
+      return;
     }
-  }
-
-  /** Removes already rendered skin bubbles linked to a source message. */
-  function removeExistingSkinBubbles(msgEl) {
-    var skinId = msgEl.getAttribute('data-skin-id');
-    if (skinId) {
-      var existing = document.querySelectorAll('.skin-bubble-wrap[data-skin-source="' + skinId + '"]');
-      var container = existing.length > 0 ? existing[0].closest('.skin-bubble-container') : null;
-      if (container) container.remove();
-    }
-  }
-
-  /**
-   * Renders one source message into the skin UI.
-   *
-   * @param {Element} msgEl Source message element.
-   * @param {Object} adapter Platform adapter.
-   * @param {boolean} forceComplete If true, bypass streaming state and render as complete.
-   */
-  function renderMessage(msgEl, adapter, forceComplete, preloadedSettings, preloadedUserChars) {
-    // Skip messages that were already processed unless a full re-render is requested.
-    if (msgEl.getAttribute('data-skin-processed') === 'true') {
-      // forceComplete is used when a stale typing bubble must become a final bubble.
-      if (forceComplete) {
-        removeExistingSkinBubbles(msgEl);
-        msgEl.removeAttribute('data-skin-processed');
-        // Continue into the normal complete render path.
-      } else {
-        // Normal duplicate guard.
-        var skinId = msgEl.getAttribute('data-skin-id');
-        if (skinId) {
-          var existingWraps = document.querySelectorAll('.skin-bubble-wrap[data-skin-source="' + skinId + '"]');
-          if (existingWraps.length > 0) {
-            var firstWrap = existingWraps[0];
-            var isTyping = firstWrap.getAttribute('data-skin-rendered') === 'typing';
-            var isStillStreaming = adapter.isStreaming(msgEl);
-
-            // Still streaming and already showing typing UI.
-            if (isStillStreaming && isTyping) return;
-
-            // Streaming finished but typing bubble still exists: re-render complete bubble.
-            if (!isStillStreaming && isTyping) {
-              removeExistingSkinBubbles(msgEl);
-              msgEl.removeAttribute('data-skin-processed');
-              // Re-run below as a complete render.
-            } else {
-              return; // Already rendered.
-            }
-          } else {
-            return;
-          }
-        } else {
-          return;
-        }
-      }
+    const streaming = role === 'assistant' && adapter.isStreaming(source);
+    const editor = wrapper.matches('textarea, [contenteditable="true"]') ||
+      wrapper.querySelector('textarea, [contenteditable="true"]');
+    if (editor) {
+      if (previous) restore(source, previous);
+      return;
     }
 
-    // Mark early to reduce observer/polling races that can trigger duplicate renders.
-    var role = adapter.getRole(msgEl);
-    if (!role) return;
+    const intact = previous && previous.wrapper === wrapper && previous.container.isConnected &&
+      previous.container.parentElement === wrapper.parentElement;
+    if (intact && previous.streaming === streaming && !dirty) return;
 
-    // forceComplete forces the non-streaming render path.
-    var isStreaming = forceComplete ? false : adapter.isStreaming(msgEl);
+    // Keep native controls, media and their event handlers mounted in rich messages.
+    const nativeContent = !!wrapper.querySelector('button, [role="button"], input, video, audio, iframe, canvas, img, [data-d-component="widget"]');
+    const value = nativeContent ? '' : role === 'assistant' && !streaming
+      ? adapter.getInnerHTML(source) : adapter.getTextContent(source);
+    if (intact && previous.value === value && previous.streaming === streaming &&
+        previous.nativeContent === nativeContent) return;
 
-    // Assign a stable source id for matching bubble containers to source nodes.
-    var skinId = msgEl.getAttribute('data-skin-id');
-    if (!skinId) {
-      skinId = 'skin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-      msgEl.setAttribute('data-skin-id', skinId);
-    }
+    if (previous) restore(source, previous);
+    const charId = role === 'user' ? settings.userCharacterId : settings.assistantCharacterId;
+    const character = getCharacterInfo(charId, characters, role);
+    const name = getLocalizedName(character);
+    const container = document.createElement('div');
+    container.className = 'skin-bubble-container';
 
-    // Mark before async settings load so concurrent renders can detect in-flight work.
-    msgEl.setAttribute('data-skin-processed', 'true');
-
-    function cancelRender() {
-      msgEl.removeAttribute('data-skin-processed');
-      msgEl.removeAttribute('data-skin-id');
-      showOriginal(msgEl, adapter, role);
-    }
-
-    function proceedRender(settings, userChars) {
-      if (!settings.enabled) {
-        // Skin disabled: restore native UI and stop.
-        cancelRender();
-        return;
-      }
-
-      // Skip duplicate insertion if another render call already inserted this source bubble.
-      var existingBubbleCount = document.querySelectorAll('.skin-bubble-wrap[data-skin-source="' + skinId + '"]').length;
-      if (existingBubbleCount > 0) {
-        // Another render call already inserted the bubble.
-        return;
-      }
-
-      // Resolve the insertion anchor once settings are available.
-      var wrapper = findInsertionTarget(msgEl, adapter);
-      if (!wrapper || !wrapper.parentNode) {
-        cancelRender();
-        return;
-      }
-
-      if (role === 'assistant') {
-        var aCharInfo = getCharacterInfo(settings.assistantCharacterId, userChars, 'assistant');
-        var aDisplayName = getLocalizedName(aCharInfo);
-        var insertPoint = wrapper.nextSibling;
-        var insertParent = wrapper.parentNode;
-
-        // If the adapter exposes an action area after the content, insert before it
-        // so platform buttons stay visually attached to the rendered bubble.
-        if (adapter && adapter.getActionArea) {
-          try {
-            var actionArea = adapter.getActionArea(msgEl);
-            var isDescendantAnchor = !!(wrapper && wrapper.contains && wrapper.contains(actionArea));
-            if (actionArea && actionArea.parentNode && (isNodeAfter(wrapper, actionArea) || isDescendantAnchor)) {
-              insertParent = actionArea.parentNode;
-              insertPoint = actionArea;
-            }
-          } catch (e0) {}
-        }
-
-        if (isStreaming) {
-          // Hide the native assistant content while streaming.
-          hideOriginal(msgEl, adapter, role);
-
-          var typingBubble = createTypingBubble(aCharInfo, aDisplayName);
-          typingBubble.setAttribute('data-skin-source', skinId);
-          var wrap = document.createElement('div');
-          wrap.className = 'skin-bubble-container';
-          wrap.appendChild(typingBubble);
-          insertParent.insertBefore(wrap, insertPoint);
-        } else {
-          var htmlContent = adapter.getInnerHTML(msgEl);
-          if (!hasMeaningfulAssistantContent(htmlContent)) {
-            cancelRender();
-            return;
-          }
-          var bubbles = createAssistantBubbles(htmlContent, aCharInfo, aDisplayName, settings.splitMaxChars);
-          var bubbleChildren = Array.from(bubbles.children);
-
-          // Abort if sanitization removed everything useful from the assistant response.
-          if (bubbleChildren.length === 0) {
-            cancelRender();
-            return;
-          }
-
-          // Hide native assistant content once the replacement bubbles are ready.
-          hideOriginal(msgEl, adapter, role);
-
-          for (var bc = 0; bc < bubbleChildren.length; bc++) {
-            bubbleChildren[bc].setAttribute('data-skin-source', skinId);
-          }
-          var wrap = document.createElement('div');
-          wrap.className = 'skin-bubble-container';
-          for (var c = 0; c < bubbleChildren.length; c++) {
-            wrap.appendChild(bubbleChildren[c]);
-          }
-          insertParent.insertBefore(wrap, insertPoint);
-        }
-      } else if (role === 'user') {
-        var uCharInfo = getCharacterInfo(settings.userCharacterId, userChars, 'user');
-        var uDisplayName = getLocalizedName(uCharInfo);
-        var textContent = adapter.getTextContent(msgEl);
-        var userInsertPoint = wrapper.nextSibling;
-        var userInsertParent = wrapper.parentNode;
-
-        // User bubble anchor stays immediately after the message wrapper.
-        // Using platform action areas for user turns can move hover/button hit-area above the message.
-
-        if (!textContent || !String(textContent).trim()) {
-          cancelRender();
-          return;
-        }
-
-        // Hide the native user message once the replacement bubble is ready.
-        hideOriginal(msgEl, adapter, role);
-
-        var userBubble = createUserBubble(textContent, uCharInfo, uDisplayName);
-        userBubble.setAttribute('data-skin-source', skinId);
-        var wrap = document.createElement('div');
-        wrap.className = 'skin-bubble-container';
-        wrap.appendChild(userBubble);
-        userInsertParent.insertBefore(wrap, userInsertPoint);
-      }
-    }
-
-    if (preloadedSettings) {
-      proceedRender(preloadedSettings, preloadedUserChars || []);
+    if (nativeContent) {
+      const header = createTypingBubble(character, name);
+      header.classList.toggle('skin-bubble-wrap-user', role === 'user');
+      header.classList.toggle('skin-bubble-wrap-assistant', role === 'assistant');
+      header.querySelector('.skin-typing').remove();
+      header.removeAttribute('data-skin-rendered');
+      container.appendChild(header);
+      wrapper.before(container);
+      wrapper.classList.add('skin-native-content');
     } else {
-      loadSettings(proceedRender);
+      if (role === 'user') {
+        if (!value.trim()) return;
+        container.appendChild(createUserBubble(value, character, name));
+      } else if (streaming) {
+        const bubble = createTypingBubble(character, name);
+        if (value.trim()) {
+          const text = bubble.querySelector('.skin-typing');
+          text.classList.remove('skin-typing');
+          text.classList.add('skin-stream-text');
+          text.textContent = value;
+        }
+        container.appendChild(bubble);
+      } else {
+        container.appendChild(createAssistantBubbles(value, character, name, settings.splitMaxChars));
+        if (!container.childElementCount) return;
+      }
+      // Keep native turn actions in place, outside the hidden content and the skin.
+      wrapper.after(container);
     }
+
+    const hidden = [];
+    if (!nativeContent) {
+      const target = adapter.getHideTarget ? adapter.getHideTarget(source, role) : wrapper;
+      for (const el of [target, ...(adapter.getExtraHideTargets?.(source, role) || [])]) {
+        if (el && !el.contains(container)) {
+          el.classList.add('skin-original-hidden');
+          hidden.push(el);
+        }
+      }
+    }
+    source.setAttribute('data-skin-processed', 'true');
+    rendered.set(source, { wrapper, container, hidden, value, streaming, nativeContent });
   }
 
-  /** Keeps the native page title unchanged. */
-  function updatePageTitle() {
-    // Keep original page title unchanged.
+  function renderAll(adapter, changedNodes) {
+    if (!contextActive(adapter) || !settings || !settings.enabled) return;
+    const sources = new Set(adapter.getMessages());
+    for (const [source, record] of rendered) {
+      if (!sources.has(source)) restore(source, record);
+    }
+    for (const source of sources) {
+      const dirty = !changedNodes || changedNodes.some(node => source.contains(node));
+      renderMessage(source, adapter, dirty);
+    }
+    ns.updateViewState?.(adapter, sources.size);
   }
 
-  /** Renders all currently discoverable messages for the active adapter. */
-  function renderAll(adapter) {
-    loadSettings(function (settings, userChars) {
-      if (!settings.enabled) {
-        // Skin disabled: remove rendered bubbles and restore native content.
-        restoreAll();
-        return;
-      }
-
-      var messages = adapter.getMessages();
-      for (var i = 0; i < messages.length; i++) {
-        renderMessage(messages[i], adapter, false, settings, userChars);
-      }
+  function reloadSettings(adapter) {
+    if (!contextActive(adapter)) return;
+    const version = ++settingsVersion;
+    loadSettings(function (nextSettings, nextCharacters) {
+      if (version !== settingsVersion || !contextActive(adapter)) return;
+      for (const [source, record] of rendered) restore(source, record);
+      settings = nextSettings;
+      characters = nextCharacters || [];
+      if (settings.enabled) renderAll(adapter);
+      else document.body.classList.remove('skin-platform-' + adapter.name, 'skin-view-home', 'skin-view-chat');
     });
   }
 
-  /** Removes all rendered bubbles and restores the original message DOM. */
-  function restoreAll() {
-    // Remove all rendered bubble containers.
-    var containers = document.querySelectorAll('.skin-bubble-container');
-    for (var i = 0; i < containers.length; i++) {
-      containers[i].remove();
-    }
-
-    // Unhide any source nodes that were hidden during rendering.
-    var hiddenEls = document.querySelectorAll('.skin-original-hidden');
-    for (var k = 0; k < hiddenEls.length; k++) {
-      hiddenEls[k].classList.remove('skin-original-hidden');
-    }
-
-    // Clear render bookkeeping attributes.
-    var processed = document.querySelectorAll('[data-skin-processed="true"]');
-    for (var j = 0; j < processed.length; j++) {
-      processed[j].removeAttribute('data-skin-processed');
-      processed[j].removeAttribute('data-skin-id');
-    }
-  }
-
-  /** Restores everything, then renders again from the current DOM state. */
-  function reRenderAll(adapter) {
-    restoreAll();
-    renderAll(adapter);
-  }
-
-  /**
-   * Removes stale bubble containers left behind by DOM churn or placeholder turns.
-   * Also upgrades stale typing bubbles to completed bubbles when streaming ends.
-   */
-  function cleanupStaleBubbles(adapter) {
-    var containers = document.querySelectorAll('.skin-bubble-container');
-
-    for (var i = 0; i < containers.length; i++) {
-      var container = containers[i];
-      var wraps = container.querySelectorAll('.skin-bubble-wrap[data-skin-source]');
-      if (wraps.length === 0) continue;
-
-      var hasLiveSource = false;
-      var removeContainer = false;
-
-      for (var j = 0; j < wraps.length; j++) {
-        var wrap = wraps[j];
-        var sourceId = wrap.getAttribute('data-skin-source');
-        if (!sourceId) continue;
-
-        var sourceEl = document.querySelector('[data-skin-id="' + sourceId + '"]');
-        if (!sourceEl) {
-          continue; // Source node disappeared.
-        }
-
-        hasLiveSource = true;
-
-        // If a typing bubble remains after streaming ended, treat it as stale.
-        var isTyping = wrap.getAttribute('data-skin-rendered') === 'typing';
-        if (isTyping && adapter && adapter.isStreaming) {
-          var stillStreaming = false;
-          try {
-            stillStreaming = adapter.isStreaming(sourceEl);
-          } catch (e) {}
-
-          if (!stillStreaming) {
-            removeContainer = true;
-            // Remove the stale typing container and trigger a completed re-render.
-            try {
-              renderMessage(sourceEl, adapter, true);
-            } catch (e2) {}
-          }
-        }
-      }
-
-      // Remove containers whose source disappeared or that were marked stale above.
-      if (!hasLiveSource || removeContainer) {
-        container.remove();
-        continue;
-      }
-
-      // Drop complete bubbles whose content is now empty after sanitization.
-      var completeWraps = container.querySelectorAll('.skin-bubble-wrap[data-skin-rendered="complete"]');
-      for (var k = 0; k < completeWraps.length; k++) {
-        var bubble = completeWraps[k].querySelector('.skin-bubble');
-        if (!bubble) {
-          completeWraps[k].remove();
-          continue;
-        }
-
-        if (!hasMeaningfulAssistantContent(bubble.innerHTML)) {
-          completeWraps[k].remove();
-        }
-      }
-
-      if (container.querySelectorAll('.skin-bubble-wrap').length === 0) {
-        container.remove();
-      }
-    }
-  }
-
-  // Public renderer API
-  ns.renderer = {
-    renderMessage: renderMessage,
-    renderAll: renderAll,
-    restoreAll: restoreAll,
-    reRenderAll: reRenderAll,
-    cleanupStaleBubbles: cleanupStaleBubbles,
-    updatePageTitle: updatePageTitle,
-    loadSettings: loadSettings,
-    getCharacterInfo: getCharacterInfo,
-    getAvatarSrc: getAvatarSrc,
-    getLocalizedName: getLocalizedName,
-    BUILTIN_CHARACTERS: BUILTIN_CHARACTERS
-  };
-
+  ns.renderer = { renderAll, reloadSettings, contextActive, signal: lifetime.signal };
 })();
